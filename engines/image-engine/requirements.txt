@@ -1,0 +1,26 @@
+# Image Engine — IDS Requirements
+# Layer 1: Preprocessing (Face Detection & Alignment)
+#
+# NOTE: We use `insightface` (ONNX Runtime backend) instead of `retina-face`
+# (TensorFlow backend) to stay consistent with our PyTorch-only stack.
+# insightface ships the same RetinaFace detector under the hood.
+insightface>=0.7.3
+onnxruntime>=1.16.0        # CPU inference (swap for onnxruntime-gpu for GPU)
+mediapipe>=0.10.30             # Face Mesh 478-pt landmark alignment (Tasks API)
+                               # NOTE: Uses MediaPipe Tasks API (FaceLandmarker).
+                               # The face_landmarker.task model (~6 MB) is auto-downloaded
+                               # on first use to engines/image-engine/models/.
+opencv-python>=4.8.0
+numpy>=1.24.0
+Pillow>=10.0.0
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.35.0
+PyWavelets>=1.4.1
+grad-cam>=1.4.1
+pytorch-lightning
+torchmetrics
+mlflow>=1.4.1
+imagehash
+exifread>=1.4.1
+piexif>=1.4.1
