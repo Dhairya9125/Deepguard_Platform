@@ -1,0 +1,30 @@
+# DeepGuard VDS — Video Engine Layer 1 Dependencies
+#
+# Install all dependencies with:
+#   pip install -r engines/video-engine/requirements.txt
+#
+# Note: FFmpeg binary must also be installed separately (not a pip package).
+#   Windows : winget install --id=Gyan.FFmpeg -e
+#   macOS   : brew install ffmpeg
+#   Ubuntu  : sudo apt install ffmpeg
+
+# ── Core Frame/Audio Extraction ─────────────────────────────────────────────
+opencv-python-headless>=4.9.0   # Frame I/O, DNN face detector, VideoWriter for tests
+numpy>=1.26.0                   # Array operations throughout
+
+# ── Face Tracking ────────────────────────────────────────────────────────────
+deep-sort-realtime>=1.3.2       # DeepSORT tracker with built-in MobileNetV2 embedder
+
+# ── Landmark Tracing ─────────────────────────────────────────────────────────
+mediapipe>=0.10.0               # FaceMesh 478-pt 3D landmark extraction
+
+# ── Scene Detection ──────────────────────────────────────────────────────────
+scenedetect[opencv]>=0.6.1      # PySceneDetect ContentDetector + OpenCV backend
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+pytest>=7.0.0
+
+# ── Optional: RetinaFace backend (high-quality tracker) ─────────────────────
+# Uncomment to enable the 'retinaface' FaceTracker backend:
+# insightface>=0.7.3
+# onnxruntime>=1.16.0           # CPU; use onnxruntime-gpu for CUDA
