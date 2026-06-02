@@ -1,0 +1,124 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8000:8000"
+    environment:
+      - ADS_ENVIRONMENT=development
+      - ADS_DEBUG=true
+      - ADS_DATABASE__URL=postgresql+asyncpg://ads:ads@postgres:5432/ads
+      - ADS_REDIS__URL=redis://redis:6379/0
+      - ADS_KAFKA__BOOTSTRAP_SERVERS=kafka:9092
+      - ADS_MLFLOW__TRACKING_URI=http://mlflow:5000
+      - ADS_SECURITY__SECRET_KEY=development-secret-key-change-in-production
+    volumes:
+      - ../data:/app/data
+      - ../models:/app/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: production
+    command: celery -A src.worker.tasks worker --loglevel=info
+    environment:
+      - ADS_ENVIRONMENT=development
+      - ADS_DATABASE__URL=postgresql+asyncpg://ads:ads@postgres:5432/ads
+      - ADS_REDIS__URL=redis://redis:6379/0
+    volumes:
+      - ../data:/app/data
+      - ../models:/app/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=ads
+      - POSTGRES_PASSWORD=ads
+      - POSTGRES_DB=ads
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ads"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.20.0
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://ads:ads@postgres:5432/ads
+      - MLFLOW_ARTIFACT_ROOT=/mlflow/artifacts
+    volumes:
+      - mlflow_data:/mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://ads:ads@postgres:5432/ads
+      --default-artifact-root /mlflow/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.0-ubuntu
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mlflow_data:
+  grafana_data:
+  prometheus_data:
