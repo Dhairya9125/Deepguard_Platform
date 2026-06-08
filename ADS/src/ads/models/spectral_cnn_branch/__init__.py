@@ -1,0 +1,1 @@
+"""Spectral CNN branch package."""

@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+data/
+models/checkpoints/
+models/artifacts/
+outputs/
+logs/
+mlruns/
+.dvc/
+*.dvc
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Test & coverage
+.pytest_cache/
+coverage/
+.coverage
+htmlcov/
+.cache/
+*.trx
+
+# Secrets
+*.key
+*.pem
+*.crt
+*.cert
+credentials.json
+service-account.json
+.env.local
+.env.production
+
+# Docker
+.docker/
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
