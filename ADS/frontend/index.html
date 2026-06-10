@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vexel AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --black: #000000;
+      --white: #FFFFFF;
+      --off-white: #F5F5F5;
+      --gray-dim: #888888;
+      --gray-border: #1A1A1A;
+      --accent-glow: #4A90E2;
+      --accent-line: #FFFFFF;
+      --tag-bg: rgba(255,255,255,0.06);
+      --tag-border: rgba(255,255,255,0.10);
+    }
+    html {
+      scroll-behavior: smooth;
+      background: var(--black);
+    }
+    body {
+      background: var(--black);
+      overflow-x: hidden;
+      color: var(--white);
+      font-family: 'Space Grotesk', sans-serif;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    body.loaded {
+      opacity: 1;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* LOADER */
+    #loader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000000;
+      z-index: 9999;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 48px;
+      transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #loader.hidden {
+      transform: translateY(-100%);
+    }
+    #loader-percent {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(48px, 10vw, 120px);
+      color: #FFFFFF;
+      line-height: 1;
+    }
+    /* NAV */
+    nav#navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: #000000;
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: #FFFFFF;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 40px;
+      align-items: center;
+    }
+    .nav-links a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+    }
+    .nav-links a:hover {
+      opacity: 1;
+    }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 2px;
+      padding: 10px 20px;
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+    .nav-cta:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .nav-cta span {
+      font-size: 16px;
+      line-height: 1;
+    }
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: #FFFFFF;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    /* MOBILE MENU */
+    #mobile-menu {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000000;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #mobile-menu.open {
+      transform: translateX(0);
+    }
+    #menu-close {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: none;
+      border: none;
+      color: #FFFFFF;
+      font-size: 28px;
+      cursor: pointer;
+    }
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .mobile-nav-links a {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      color: #FFFFFF;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+    .mobile-nav-links .nav-cta {
+      font-size: 16px;
+      padding: 14px 28px;
+      margin-top: 16px;
+    }
+    /* HERO */
+    #hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000000;
+    }
+    #three-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hero-vignette {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: absolute;
+      top: 50%;
+      left: 48px;
+      transform: translateY(-50%);
+      z-index: 10;
+      max-width: 520px;
+    }
+    .hero-content .eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #888888;
+      display: block;
+      margin-bottom: 20px;
+    }
+    .hero-content h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(52px, 8vw, 96px);
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      color: #FFFFFF;
+      margin-bottom: 24px;
+    }
+    .hero-content p {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #888888;
+      max-width: 400px;
+      margin-bottom: 32px;
+    }
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 2px;
+      padding: 12px 24px;
+      transition: background 0.2s ease;
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 48px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #888888;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      opacity: 0.6;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .scroll-indicator .arrow-down {
+      display: inline-block;
+      font-size: 14px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+    /* CUSTOM CURSOR */
+    #cursor-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.15s ease;
+      opacity: 0;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.15s ease;
+      opacity: 0;
+    }
+    /* ABOUT */
+    #about {
+      padding: 120px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .about-left .eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #888888;
+      display: block;
+      margin-bottom: 20px;
+    }
+    .about-statement {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(22px, 3vw, 36px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+    .about-right p {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #888888;
+      margin-bottom: 20px;
+    }
+    .about-right p:last-child {
+      margin-bottom: 0;
+    }
+    /* FEATURES */
+    #features {
+      padding: 80px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+    .feature-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #FFFFFF;
+      margin-bottom: 12px;
+    }
+    .feature-card p {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666666;
+      max-width: 320px;
+    }
+    .feature-deco {
+      position: absolute;
+      top: 32px;
+      right: 32px;
+      width: 64px;
+      height: 64px;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .feature-deco svg {
+      width: 100%;
+      height: 100%;
+    }
+    /* TAGLINE */
+    #tagline {
+      padding: 160px 48px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    #tagline h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(40px, 7vw, 84px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+    /* LAUNCH */
+    #launch {
+      padding: 120px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .launch-left .eyebrow {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #888888;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .launch-left h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      color: #FFFFFF;
+      margin-bottom: 32px;
+    }
+    .img-stack-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 360px;
+    }
+    .img-card {
+      width: 240px;
+      height: 320px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: absolute;
+      transition: transform 0.4s ease, margin 0.4s ease;
+    }
+    .img-stack-1 {
+      transform: rotate(-4deg) translateX(-20px);
+      z-index: 1;
+    }
+    .img-stack-2 {
+      transform: rotate(0deg);
+      z-index: 2;
+    }
+    .img-stack-3 {
+      transform: rotate(4deg) translateX(20px);
+      z-index: 1;
+    }
+    .img-stack-wrapper:hover .img-stack-1 {
+      transform: rotate(-8deg) translateX(-40px);
+    }
+    .img-stack-wrapper:hover .img-stack-2 {
+      transform: rotate(0deg) translateY(-8px);
+    }
+    .img-stack-wrapper:hover .img-stack-3 {
+      transform: rotate(8deg) translateX(40px);
+    }
+    /* FOOTER */
+    footer {
+      padding: 48px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-copy {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      color: #555555;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    /* SCROLL ANIMATIONS */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #about .animate-on-scroll {
+      transform: translateX(-40px);
+    }
+    #about .animate-on-scroll.visible {
+      transform: translateX(0);
+    }
+    #about .about-right.animate-on-scroll {
+      transform: translateX(40px);
+    }
+    #about .about-right.animate-on-scroll.visible {
+      transform: translateX(0);
+    }
+    .feature-card.animate-on-scroll {
+      transition: opacity 0.8s ease, transform 0.8s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+      transition-delay: calc(var(--i, 0) * 0.1s);
+    }
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .hero-content h1 {
+        font-size: clamp(44px, 6vw, 72px);
+      }
+      .about-statement {
+        font-size: clamp(20px, 2.5vw, 30px);
+      }
+      #tagline h2 {
+        font-size: clamp(36px, 6vw, 64px);
+      }
+    }
+    @media (max-width: 768px) {
+      nav#navbar {
+        padding: 20px 24px;
+      }
+      .nav-links, nav#navbar .nav-cta {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+      }
+      .hero-content {
+        left: 24px;
+        max-width: 100%;
+        padding-right: 24px;
+      }
+      .hero-content h1 {
+        font-size: clamp(36px, 10vw, 52px);
+      }
+      .hero-content p {
+        max-width: 100%;
+      }
+      .scroll-indicator {
+        left: 24px;
+      }
+      #loader {
+        padding: 24px;
+      }
+      #about {
+        padding: 80px 24px;
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      #features {
+        padding: 60px 24px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      #tagline {
+        padding: 100px 24px;
+      }
+      #launch {
+        padding: 80px 24px;
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+      .img-card {
+        width: 200px;
+        height: 266px;
+      }
+      footer {
+        padding: 32px 24px;
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+    @media (max-width: 480px) {
+      .hero-content h1 {
+        font-size: 36px;
+      }
+      .hero-content {
+        left: 20px;
+        padding-right: 20px;
+      }
+      .hero-content p {
+        font-size: 14px;
+      }
+      #about {
+        padding: 60px 20px;
+      }
+      .about-statement {
+        font-size: 20px;
+      }
+      #features {
+        padding: 40px 20px;
+      }
+      .feature-card {
+        padding: 32px 24px;
+      }
+      #tagline {
+        padding: 80px 20px;
+      }
+      #launch {
+        padding: 60px 20px;
+      }
+      .launch-left h2 {
+        font-size: 36px;
+      }
+      footer {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOADER -->
+  <div id="loader">
+    <span id="loader-percent">0%</span>
+  </div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="logo">VEXEL</div>
+    <ul class="nav-links">
+      <li><a href="#about">ABOUT</a></li>
+      <li><a href="#features">FEATURES</a></li>
+      <li><a href="#launch">USE CASES</a></li>
+    </ul>
+    <a href="#launch" class="nav-cta">GET STARTED <span>→</span></a>
+    <button class="hamburger" id="menu-toggle">☰</button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu">
+    <button id="menu-close">✕</button>
+    <nav class="mobile-nav-links">
+      <a href="#about">ABOUT</a>
+      <a href="#features">FEATURES</a>
+      <a href="#launch">USE CASES</a>
+      <a href="#launch" class="nav-cta">GET STARTED →</a>
+    </nav>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <canvas id="three-canvas"></canvas>
+    <div class="hero-vignette"></div>
+    <div class="hero-content animate-on-scroll">
+      <span class="eyebrow">// VEXEL AI</span>
+      <h1>Design meets<br>intelligence<br>in 3D space.</h1>
+      <p>A modern framework built for AI brands — minimal, dynamic, and deeply interactive. Make your presence feel intelligent from the very first pixel.</p>
+      <a href="#about" class="btn-outline">EXPLORE VEXEL</a>
+    </div>
+    <div class="scroll-indicator">
+      SCROLL DOWN <span class="arrow-down">↓</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-left animate-on-scroll">
+      <span class="eyebrow">ABOUT</span>
+      <p class="about-statement">Vexel is an AI — a synthetic mind crafted to design and present other intelligent systems. It doesn't serve content; it curates presence.</p>
+    </div>
+    <div class="about-right animate-on-scroll" style="--delay: 0.2s">
+      <p>Vexel understands the essence of AI companies and builds visual narratives that match their complexity, speed, and ambition.</p>
+      <p>Vexel isn't a tool — it's an autonomous AI with a visual language. It interprets data, form, and function to generate immersive web experiences through motion, geometry, and spatial intelligence. Vexel doesn't just build — it thinks in design.</p>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="feature-card animate-on-scroll" style="--i:0">
+      <div class="feature-deco">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="2" fill="white"/>
+          <circle cx="20" cy="8" r="2" fill="white"/>
+          <circle cx="32" cy="8" r="2" fill="white"/>
+          <circle cx="44" cy="8" r="2" fill="white"/>
+          <circle cx="8" cy="20" r="2" fill="white"/>
+          <circle cx="20" cy="20" r="2" fill="white"/>
+          <circle cx="32" cy="20" r="2" fill="white"/>
+          <circle cx="44" cy="20" r="2" fill="white"/>
+          <circle cx="8" cy="32" r="2" fill="white"/>
+          <circle cx="20" cy="32" r="2" fill="white"/>
+          <circle cx="32" cy="32" r="2" fill="white"/>
+          <circle cx="44" cy="32" r="2" fill="white"/>
+          <circle cx="8" cy="44" r="2" fill="white"/>
+          <circle cx="20" cy="44" r="2" fill="white"/>
+          <circle cx="32" cy="44" r="2" fill="white"/>
+          <circle cx="44" cy="44" r="2" fill="white"/>
+        </svg>
+      </div>
+      <h3>Modular AI Components</h3>
+      <p>Plug-and-play AI-powered design components that slot into any architecture seamlessly.</p>
+    </div>
+    <div class="feature-card animate-on-scroll" style="--i:1">
+      <div class="feature-deco">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="4" y1="12" x2="60" y2="12" stroke="white" stroke-width="1.5"/>
+          <line x1="4" y1="24" x2="60" y2="24" stroke="white" stroke-width="1.5"/>
+          <line x1="4" y1="36" x2="60" y2="36" stroke="white" stroke-width="1.5"/>
+          <line x1="4" y1="48" x2="60" y2="48" stroke="white" stroke-width="1.5"/>
+          <line x1="4" y1="60" x2="60" y2="60" stroke="white" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <h3>Adaptive Web Architecture</h3>
+      <p>Self-adapting layouts that respond to your data, context, and users in real time.</p>
+    </div>
+    <div class="feature-card animate-on-scroll" style="--i:2">
+      <div class="feature-deco">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="12" y1="12" x2="52" y2="52" stroke="white" stroke-width="2"/>
+          <line x1="52" y1="12" x2="12" y2="52" stroke="white" stroke-width="2"/>
+        </svg>
+      </div>
+      <h3>Realtime 3D Interactions</h3>
+      <p>WebGL-powered spatial interactions that make every page feel alive and immersive.</p>
+    </div>
+    <div class="feature-card animate-on-scroll" style="--i:3">
+      <div class="feature-deco">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="40" width="10" height="16" fill="white"/>
+          <rect x="27" y="28" width="10" height="28" fill="white"/>
+          <rect x="46" y="16" width="10" height="40" fill="white"/>
+        </svg>
+      </div>
+      <h3>Minimum Effort Maximum Impact</h3>
+      <p>Deploy extraordinary experiences with zero friction, total control, and maximum velocity.</p>
+    </div>
+  </section>
+
+  <!-- TAGLINE -->
+  <section id="tagline">
+    <h2 class="animate-on-scroll">Vexel isn't just smart.<br>It learns, evolves,<br>and adapts visually.</h2>
+  </section>
+
+  <!-- LAUNCH -->
+  <section id="launch">
+    <div class="launch-left animate-on-scroll">
+      <span class="eyebrow">Launch with Vexel</span>
+      <h2>GET STARTED</h2>
+      <a href="#" class="btn-outline">GET STARTED →</a>
+    </div>
+    <div class="launch-right animate-on-scroll" style="--delay: 0.15s">
+      <div class="img-stack-wrapper">
+        <div class="img-card img-stack-1"></div>
+        <div class="img-card img-stack-2"></div>
+        <div class="img-card img-stack-3"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-copy">© 2025 — VEXEL INC. All rights reserved 3D MODEL BY TAMMINEN</p>
+    <div class="logo">VEXEL</div>
+  </footer>
+
+  <!-- THREE.JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      // ========== LOADER ==========
+      const loader = document.getElementById('loader');
+      const loaderPercent = document.getElementById('loader-percent');
+      let count = 0;
+      const interval = setInterval(function() {
+        count++;
+        loaderPercent.textContent = count + '%';
+        if (count >= 100) {
+          clearInterval(interval);
+          loader.classList.add('hidden');
+          document.body.classList.add('loaded');
+        }
+      }, 18);
+
+      // ========== THREE.JS SCENE ==========
+      const canvas = document.getElementById('three-canvas');
+      const hero = document.getElementById('hero');
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, hero.clientWidth / hero.clientHeight, 0.1, 100);
+      camera.position.set(0, 0, 7);
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true
+      });
+      renderer.setSize(hero.clientWidth, hero.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+
+      // Primary geometry
+      const geometry = new THREE.IcosahedronGeometry(2, 1);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        metalness: 0.9,
+        roughness: 0.1,
+        wireframe: false
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      // Wireframe overlay
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.08
+      });
+      const wireMesh = new THREE.Mesh(geometry.clone(), wireMat);
+      scene.add(wireMesh);
+
+      // Lighting
+      const ambient = new THREE.AmbientLight(0x404040, 0.5);
+      scene.add(ambient);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      dirLight.position.set(5, 5, 5);
+      scene.add(dirLight);
+
+      const pointLight1 = new THREE.PointLight(0x4A90E2, 2, 20);
+      pointLight1.position.set(-3, 2, 3);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0xffffff, 1, 15);
+      pointLight2.position.set(3, -2, -3);
+      scene.add(pointLight2);
+
+      // Mouse parallax
+      let mouseX = 0, mouseY = 0;
+      let targetX = 0, targetY = 0;
+
+      document.addEventListener('mousemove', function(e) {
+        const x = (e.clientX / window.innerWidth) * 2 - 1;
+        const y = -(e.clientY / window.innerHeight) * 2 + 1;
+        mouseX = x * 0.5;
+        mouseY = y * 0.3;
+      });
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        mesh.rotation.y += 0.003;
+        mesh.rotation.x += 0.001;
+        wireMesh.rotation.y = mesh.rotation.y;
+        wireMesh.rotation.x = mesh.rotation.x;
+
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
+        camera.position.x = targetX;
+        camera.position.y = targetY;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize handler
+      function onResize() {
+        const w = hero.clientWidth;
+        const h = hero.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+      window.addEventListener('resize', onResize);
+
+      // ========== INTERSECTION OBSERVER ==========
+      const animateEls = document.querySelectorAll('.animate-on-scroll');
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      animateEls.forEach(function(el) {
+        observer.observe(el);
+      });
+
+      // ========== MOBILE MENU ==========
+      const menuToggle = document.getElementById('menu-toggle');
+      const menuClose = document.getElementById('menu-close');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+
+      menuToggle.addEventListener('click', function() {
+        mobileMenu.classList.add('open');
+      });
+      menuClose.addEventListener('click', function() {
+        mobileMenu.classList.remove('open');
+      });
+      mobileLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          mobileMenu.classList.remove('open');
+        });
+      });
+
+      // ========== CUSTOM CURSOR ==========
+      var cursorDot = document.createElement('div');
+      cursorDot.id = 'cursor-dot';
+      document.body.appendChild(cursorDot);
+
+      var cursorRing = document.createElement('div');
+      cursorRing.id = 'cursor-ring';
+      document.body.appendChild(cursorRing);
+
+      var cursorX = 0, cursorY = 0;
+      var ringX = 0, ringY = 0;
+
+      document.addEventListener('mousemove', function(e) {
+        cursorX = e.clientX;
+        cursorY = e.clientY;
+        cursorDot.style.opacity = '1';
+        cursorRing.style.opacity = '1';
+        cursorDot.style.transform = 'translate(' + cursorX + 'px, ' + cursorY + 'px) translate(-50%, -50%)';
+      });
+
+      document.addEventListener('mouseleave', function() {
+        cursorDot.style.opacity = '0';
+        cursorRing.style.opacity = '0';
+      });
+
+      function cursorLoop() {
+        ringX += (cursorX - ringX) * 0.1;
+        ringY += (cursorY - ringY) * 0.1;
+        cursorRing.style.transform = 'translate(' + ringX + 'px, ' + ringY + 'px) translate(-50%, -50%)';
+        requestAnimationFrame(cursorLoop);
+      }
+      cursorLoop();
+
+      // ========== SMOOTH SCROLL FOR NAV ==========
+      document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+          const href = anchor.getAttribute('href');
+          if (href === '#') return;
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

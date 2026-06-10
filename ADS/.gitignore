@@ -65,3 +65,12 @@ service-account.json
 *.tfstate
 *.tfstate.backup
 .terraform/
+
+# Node
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+frontend/out/
+frontend/.vercel/
+frontend/.turbo/
