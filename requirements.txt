@@ -1,0 +1,60 @@
+# DeepGuard Platform — Backend Python Dependencies
+# Install with: pip install -r requirements.txt
+#
+# Tested with Python 3.10 / 3.11
+# NOTE: torch, torchvision, torchaudio require Python ≤ 3.11 for pre-built wheels.
+
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9      # required for UploadFile / Form parsing
+
+# ── Database — Neon Serverless PostgreSQL ────────────────────────────────────
+# Neon is a free serverless PostgreSQL (https://neon.tech).
+# asyncpg connects via SSL — no Docker or local DB server required.
+sqlmodel>=0.0.18             # SQLAlchemy + Pydantic in one (ORM models)
+asyncpg>=0.29.0              # async PostgreSQL driver (works with Neon, AWS RDS, local)
+alembic>=1.13.0              # database migrations (for production schema versioning)
+# Optional: aiosqlite>=0.19.0  # fallback if you want to test with SQLite locally
+
+# ── Authentication ────────────────────────────────────────────────────────────
+passlib[bcrypt]>=1.7.4       # password hashing
+python-jose[cryptography]>=3.3.0  # JWT token creation and validation
+pydantic[email]>=2.0.0       # email validation for UserCreate schema
+
+# ── Settings ──────────────────────────────────────────────────────────────────
+pydantic-settings>=2.0.0     # BaseSettings with .env file support
+
+# ── Audio Processing (ADS Engine) ────────────────────────────────────────────
+librosa>=0.10.0              # audio loading, MFCC, STFT, spectrograms
+soundfile>=0.12.0            # read/write WAV, FLAC, OGG
+numpy>=1.24.0                # numerical computing base
+scipy>=1.11.0                # signal processing (filtering, transforms)
+
+# ── ML / Deep Learning ───────────────────────────────────────────────────────
+# Uncomment after confirming Python version is 3.10 or 3.11:
+torch>=2.2.0
+torchvision>=0.17.0
+torchaudio>=2.2.0
+transformers>=4.40.0        # WavLM, XLS-R models (HuggingFace)
+pytorch-lightning>=2.2.0
+torchmetrics>=1.3.0
+
+# ── MLOps — File-based (no server needed) ────────────────────────────────────
+# mlflow>=2.12.0              # Experiment tracking (set MLFLOW_TRACKING_URI=file:./mlruns)
+
+# ── Computer Vision ───────────────────────────────────────────────────────────
+opencv-python-headless>=4.9.0
+Pillow>=10.0.0
+scikit-image>=0.22.0
+
+# ── Async Task Queue (lightweight Celery alternative) ─────────────────────────
+# Uses FastAPI BackgroundTasks by default (built-in, zero RAM overhead).
+# Uncomment for a step up:
+# arq>=0.25.0                 # Redis-backed async task queue (lighter than Celery)
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+httpx>=0.27.0
+aiosqlite>=0.20.0

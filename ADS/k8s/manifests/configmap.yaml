@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ads-config
+  namespace: ads
+data:
+  ADS_ENVIRONMENT: "production"
+  ADS_DEBUG: "false"
+  ADS_LOG_LEVEL: "INFO"
+  ADS_LOG_FORMAT: "json"
+  ADS_AUDIO__SAMPLE_RATE: "16000"
+  ADS_AUDIO__MAX_DURATION_SECONDS: "30.0"
+  ADS_AUDIO__CHUNK_DURATION_SECONDS: "5.0"
+  ADS_VAD__THRESHOLD: "0.5"
+  ADS_SECURITY__ALLOWED_AUDIO_FORMATS: '["wav","mp3","flac","ogg","m4a","aac","opus"]'
+  ADS_SECURITY__MAX_UPLOAD_SIZE_MB: "100"
+  ADS_SECURITY__RATE_LIMIT_PER_MINUTE: "60"
+  ADS_PIPELINE__BATCH_SIZE: "1"
+  ADS_PIPELINE__NUM_WORKERS: "2"
+  ADS_SERVING__MAX_BATCH_SIZE: "32"
+  ADS_SERVING__WARMUP_MODELS: "true"
+  ADS_SERVING__CACHE_EMBEDDINGS: "true"
+  ADS_MODEL_BACKEND: "cpu"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ads-secrets
+  namespace: ads
+type: Opaque
+stringData:
+  database-url: "postgresql+asyncpg://ads:ads@postgres-service:5432/ads"
+  redis-url: "redis://redis-service:6379/0"
+  secret-key: "change-this-in-production-use-a-256-bit-key"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ads-models-pvc
+  namespace: ads
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ads-data-pvc
+  namespace: ads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ads-postgres-pvc
+  namespace: ads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi

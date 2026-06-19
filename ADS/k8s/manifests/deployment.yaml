@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ads-api
+  namespace: ads
+  labels:
+    app: ads
+    component: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ads
+      component: api
+  template:
+    metadata:
+      labels:
+        app: ads
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      nodeSelector:
+        node-type: cpu
+      containers:
+      - name: api
+        image: ads-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 8001
+          name: metrics
+        env:
+        - name: ADS_ENVIRONMENT
+          value: "production"
+        - name: ADS_DATABASE__URL
+          valueFrom:
+            secretKeyRef:
+              name: ads-secrets
+              key: database-url
+        - name: ADS_REDIS__URL
+          valueFrom:
+            secretKeyRef:
+              name: ads-secrets
+              key: redis-url
+        - name: ADS_SECURITY__SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ads-secrets
+              key: secret-key
+        - name: ADS_MLFLOW__TRACKING_URI
+          value: "http://mlflow-service:5000"
+        - name: ADS_KAFKA__BOOTSTRAP_SERVERS
+          value: "kafka-service:9092"
+        resources:
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+          limits:
+            cpu: "4"
+            memory: "8Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: data
+          mountPath: /app/data
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: ads-models-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: ads-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ads-api-service
+  namespace: ads
+spec:
+  selector:
+    app: ads
+    component: api
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  - port: 8001
+    targetPort: 8001
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ads-api-lb
+  namespace: ads
+spec:
+  selector:
+    app: ads
+    component: api
+  ports:
+  - port: 80
+    targetPort: 8000
+    name: http
+  type: LoadBalancer

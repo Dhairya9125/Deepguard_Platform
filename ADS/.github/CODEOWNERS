@@ -1,0 +1,26 @@
+# Default owners for all files
+* @rahul
+
+# Core architecture
+/src/ads/ @rahul
+
+# API layer
+/src/api/ @rahul
+
+# Model architectures
+/src/ads/models/ @rahul
+
+# MLOps and deployment
+/mlops/ @rahul
+/terraform/ @rahul
+/k8s/ @rahul
+/docker/ @rahul
+
+# CI/CD
+/.github/workflows/ @rahul
+
+# Tests
+/tests/ @rahul
+
+# Documentation
+/docs/ @rahul
