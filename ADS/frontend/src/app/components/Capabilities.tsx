@@ -33,7 +33,7 @@ export default function Capabilities() {
           initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex flex-col items-center text-center mb-20"
+          className="text-center mb-20"
         >
           <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
             Capabilities
@@ -41,7 +41,7 @@ export default function Capabilities() {
           <h2 className="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight">
             <span className="text-gradient-blue">Forensic Capabilities</span>
           </h2>
-          <p className="mt-4 text-white/50 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-white/50 max-w-xl mx-auto">
             Powered by advanced neural architectures purpose-built for synthetic media detection.
           </p>
         </motion.div>

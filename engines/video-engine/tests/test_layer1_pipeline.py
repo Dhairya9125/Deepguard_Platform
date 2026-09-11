@@ -68,7 +68,7 @@ def workspace(tmp_path_factory):
 def pipeline():
     """Instantiate the pipeline — skip if FFmpeg is unavailable."""
     try:
-        from vid_preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
+        from preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
     except ImportError:
         pytest.skip("video_layer1_pipeline not importable")
 
@@ -105,7 +105,7 @@ class TestPipelineResult:
     def test_result_type(self, pipeline_result):
         """pipeline.run() must return a VideoPreprocessingResult."""
         try:
-            from vid_preprocessing.result_types import VideoPreprocessingResult  # noqa: PLC0415
+            from preprocessing.result_types import VideoPreprocessingResult  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types not importable")
         assert isinstance(pipeline_result, VideoPreprocessingResult)
@@ -185,7 +185,7 @@ class TestPipelineContextManager:
     def test_context_manager_no_error(self, synthetic_video, workspace):
         """VideoLayer1Pipeline used as a context manager must not raise."""
         try:
-            from vid_preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
+            from preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
         except ImportError:
             pytest.skip("video_layer1_pipeline not importable")
 
@@ -207,7 +207,7 @@ class TestPipelineMissingVideo:
     def test_missing_video_raises(self, workspace):
         """run() on a non-existent video must raise FileNotFoundError."""
         try:
-            from vid_preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
+            from preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
         except ImportError:
             pytest.skip("video_layer1_pipeline not importable")
 
@@ -225,7 +225,7 @@ class TestPipelineRepr:
     def test_repr_contains_key_info(self):
         """VideoLayer1Pipeline.__repr__ must mention fps and tracker backend."""
         try:
-            from vid_preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
+            from preprocessing.video_layer1_pipeline import VideoLayer1Pipeline  # noqa: PLC0415
         except ImportError:
             pytest.skip("video_layer1_pipeline not importable")
 

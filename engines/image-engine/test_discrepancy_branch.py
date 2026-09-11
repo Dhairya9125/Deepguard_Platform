@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-from img_feature_extraction.discrepancy_branch import DiscrepancyBranch, patch_shuffle
+from feature_extraction.discrepancy_branch import DiscrepancyBranch, patch_shuffle
 
 def test():
     print("Testing Layer 2 Branch C: DiscrepancyBranch (D3 Siamese)...")

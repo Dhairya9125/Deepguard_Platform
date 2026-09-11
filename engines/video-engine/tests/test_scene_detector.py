@@ -81,7 +81,7 @@ class TestSceneDetectorInit:
     def test_init_defaults(self):
         """SceneDetector initialises with expected defaults."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
         except ImportError:
             pytest.skip("scene_detector not importable")
         sd = SceneDetector()
@@ -92,7 +92,7 @@ class TestSceneDetectorInit:
     def test_repr(self):
         """__repr__ must mention threshold and class name."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
         except ImportError:
             pytest.skip("scene_detector not importable")
         sd = SceneDetector(threshold=30.0)
@@ -103,7 +103,7 @@ class TestSceneDetectorInit:
     def test_detect_missing_video(self, tmp_path):
         """detect() on a non-existent file must raise FileNotFoundError."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
         except ImportError:
             pytest.skip("scene_detector not importable")
         sd = SceneDetector()
@@ -116,7 +116,7 @@ class TestSceneDetectorDetect:
     def test_detect_returns_list(self, single_scene_video):
         """detect() must always return a list (at minimum with one scene)."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -129,7 +129,7 @@ class TestSceneDetectorDetect:
     def test_single_scene_video_returns_one_scene(self, single_scene_video):
         """A uniform video should produce exactly 1 scene."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -141,7 +141,7 @@ class TestSceneDetectorDetect:
     def test_two_scene_video_returns_two_scenes(self, two_scene_video):
         """A video with one hard cut should produce 2 scenes."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -154,7 +154,7 @@ class TestSceneDetectorDetect:
     def test_scene_ids_sequential(self, single_scene_video):
         """Scene IDs must be 0, 1, 2, … without gaps."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -167,7 +167,7 @@ class TestSceneDetectorDetect:
     def test_scene_boundary_fields(self, single_scene_video):
         """SceneBoundary must have all required fields with valid values."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -187,7 +187,7 @@ class TestSceneDetectorAssignIDs:
     def _make_frames_with_timestamps(self, n: int, fps: float = 8.0):
         """Create minimal FramePacket list for assignment testing."""
         try:
-            from vid_preprocessing.result_types import FramePacket  # noqa: PLC0415
+            from preprocessing.result_types import FramePacket  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types not importable")
         return [
@@ -198,7 +198,7 @@ class TestSceneDetectorAssignIDs:
     def test_assign_sets_scene_id_on_all_frames(self, single_scene_video):
         """After assign_scene_ids, no frame should have scene_id == -1."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -214,8 +214,8 @@ class TestSceneDetectorAssignIDs:
     def test_assign_without_detect_raises(self):
         """assign_scene_ids with no scenes and no cached result must raise."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
-            from vid_preprocessing.result_types    import FramePacket  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.result_types    import FramePacket  # noqa: PLC0415
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -227,7 +227,7 @@ class TestSceneDetectorAssignIDs:
     def test_assign_empty_frames_no_error(self, single_scene_video):
         """assign_scene_ids on an empty frame list must not raise."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -242,7 +242,7 @@ class TestSceneDetectorAssignIDs:
         and frames after the cut must be 1.
         """
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")
@@ -273,7 +273,7 @@ class TestSceneDetectorSummary:
     def test_summary_returns_string(self, single_scene_video):
         """summary() must return a non-empty string."""
         try:
-            from vid_preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
+            from preprocessing.scene_detector import SceneDetector  # noqa: PLC0415
             import scenedetect  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("scene_detector or scenedetect not available")

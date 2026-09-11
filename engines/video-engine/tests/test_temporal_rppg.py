@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 import torch
 
-from vid_feature_extraction.result_types_l2e import BranchEResult, TrackRPPGMetrics
-from vid_feature_extraction.rppg_signals import (
+from feature_extraction.result_types_l2e import BranchEResult, TrackRPPGMetrics
+from feature_extraction.rppg_signals import (
     compute_rppg_chrom,
     compute_rppg_pos,
     estimate_heart_rate,
@@ -19,9 +19,9 @@ from vid_feature_extraction.rppg_signals import (
     evaluate_pulse_consistency,
     extract_skin_rois,
 )
-from vid_feature_extraction.physnet_model import PhysNetActiveModel
-from vid_feature_extraction.deepphys_model import DeepPhysActiveModel
-from vid_feature_extraction.temporal_rppg_analyzer import TemporalRPPGAnalyzer
+from feature_extraction.physnet_model import PhysNetActiveModel
+from feature_extraction.deepphys_model import DeepPhysActiveModel
+from feature_extraction.temporal_rppg_analyzer import TemporalRPPGAnalyzer
 
 
 # ===========================================================================
@@ -40,7 +40,7 @@ def _make_dummy_landmarks(
 
     lm_list = []
     try:
-        from vid_preprocessing.result_types import FaceLandmarkResult
+        from preprocessing.result_types import FaceLandmarkResult
     except ImportError:
         # Mock class if not importable
         class FaceLandmarkResult:
@@ -89,7 +89,7 @@ def _make_layer1_result(
 ):
     """Build a synthetic VideoPreprocessingResult stub for Branch E."""
     try:
-        from vid_preprocessing.result_types import (
+        from preprocessing.result_types import (
             FramePacket,
             SceneBoundary,
             TrackedFace,
@@ -286,7 +286,7 @@ class TestTemporalRPPGAnalyzerIntegration:
 
     def test_analyze_empty_layer1_result(self):
         try:
-            from vid_preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
+            from preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
         except ImportError:
             pytest.skip("preprocessing.result_types not importable")
 

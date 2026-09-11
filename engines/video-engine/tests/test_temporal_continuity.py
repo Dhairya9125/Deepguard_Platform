@@ -10,14 +10,14 @@ import numpy as np
 import pytest
 import torch
 
-from vid_feature_extraction.result_types_l2f import BranchFResult, TrackContinuityMetrics
-from vid_feature_extraction.continuity_signals import (
+from feature_extraction.result_types_l2f import BranchFResult, TrackContinuityMetrics
+from feature_extraction.continuity_signals import (
     compute_geometry_instability,
     compute_identity_drift,
     compute_trajectory_jumps,
 )
-from vid_feature_extraction.facenet_model import FacenetActiveModel
-from vid_feature_extraction.temporal_continuity_analyzer import TemporalContinuityAnalyzer
+from feature_extraction.facenet_model import FacenetActiveModel
+from feature_extraction.temporal_continuity_analyzer import TemporalContinuityAnalyzer
 
 
 # ===========================================================================
@@ -27,7 +27,7 @@ from vid_feature_extraction.temporal_continuity_analyzer import TemporalContinui
 def _make_dummy_landmarks(n_frames: int, instability: bool = False):
     """Generate mock landmarks for rigid skull geometry ratios."""
     try:
-        from vid_preprocessing.result_types import FaceLandmarkResult
+        from preprocessing.result_types import FaceLandmarkResult
     except ImportError:
         class FaceLandmarkResult:
             def __init__(self, **kwargs):
@@ -80,7 +80,7 @@ def _make_layer1_result(
 ):
     """Build a synthetic VideoPreprocessingResult stub for Branch F."""
     try:
-        from vid_preprocessing.result_types import (
+        from preprocessing.result_types import (
             FramePacket,
             SceneBoundary,
             TrackedFace,
@@ -249,7 +249,7 @@ class TestTemporalContinuityAnalyzerIntegration:
 
     def test_analyze_empty_layer1_result(self):
         try:
-            from vid_preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
+            from preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
         except ImportError:
             pytest.skip("preprocessing.result_types not importable")
 

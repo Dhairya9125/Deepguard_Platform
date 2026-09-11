@@ -4,7 +4,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from img_preprocessing.frequency_analyzer import FrequencyAnalyzer
+from preprocessing.frequency_analyzer import FrequencyAnalyzer
 
 def test():
     print("Testing FrequencyAnalyzer (FFT / DCT)...")

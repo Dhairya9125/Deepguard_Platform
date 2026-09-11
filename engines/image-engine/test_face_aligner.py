@@ -34,8 +34,8 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-from img_preprocessing.face_detector import FaceDetector
-from img_preprocessing.face_aligner  import FaceAligner, AlignmentResult
+from preprocessing.face_detector import FaceDetector
+from preprocessing.face_aligner  import FaceAligner, AlignmentResult
 
 # ─── Paths ─────────────────────────────────────────────────────────────────────
 OUTPUT_DIR  = os.path.join(_ENGINE_DIR, "test_outputs")

@@ -17,17 +17,17 @@ import numpy as np
 import pytest
 import torch
 
-from vid_feature_extraction.motion_signals import compute_blink_anomalies
-from vid_feature_extraction.result_types_l2d import BranchDResult, TrackSyncMetrics
-from vid_feature_extraction.sync_signals import (
+from feature_extraction.motion_signals import compute_blink_anomalies
+from feature_extraction.result_types_l2d import BranchDResult, TrackSyncMetrics
+from feature_extraction.sync_signals import (
     compute_audio_energy,
     compute_av_delay,
     compute_emotion_mismatch,
     compute_phoneme_viseme_mismatch,
 )
-from vid_feature_extraction.syncnet_model import SyncNetMotionModel
-from vid_feature_extraction.av_hubert_model import AVHuBERTActiveModel
-from vid_feature_extraction.temporal_sync_analyzer import TemporalSyncAnalyzer
+from feature_extraction.syncnet_model import SyncNetMotionModel
+from feature_extraction.av_hubert_model import AVHuBERTActiveModel
+from feature_extraction.temporal_sync_analyzer import TemporalSyncAnalyzer
 
 
 # ===========================================================================
@@ -42,7 +42,7 @@ def _make_layer1_result(
 ):
     """Build a synthetic VideoPreprocessingResult stub for Branch D."""
     try:
-        from vid_preprocessing.result_types import (
+        from preprocessing.result_types import (
             FaceLandmarkResult,
             FramePacket,
             SceneBoundary,
@@ -244,7 +244,7 @@ class TestTemporalSyncAnalyzerIntegration:
 
     def test_analyze_empty_layer1_result(self):
         try:
-            from vid_preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
+            from preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
         except ImportError:
             pytest.skip("preprocessing.result_types not importable")
 

@@ -43,7 +43,7 @@ class TestEMAState:
     def test_cold_start_returns_raw(self):
         """First EMA update must return a copy of the input (cold start)."""
         try:
-            from vid_preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
+            from preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -55,7 +55,7 @@ class TestEMAState:
     def test_ema_converges_toward_input(self):
         """After many identical inputs, EMA must converge to that input."""
         try:
-            from vid_preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
+            from preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -69,7 +69,7 @@ class TestEMAState:
     def test_ema_reset_clears_state(self):
         """After reset(), the next update must again be a cold start."""
         try:
-            from vid_preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
+            from preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -84,7 +84,7 @@ class TestEMAState:
     def test_ema_smoothing_intermediate(self):
         """EMA output must lie between previous and current input."""
         try:
-            from vid_preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
+            from preprocessing.landmark_tracer import _EMAState  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -109,7 +109,7 @@ class TestDerivedMetrics:
     def test_ear_fully_closed_eye(self):
         """EAR must be ~0 when vertical points collapse onto horizontal axis."""
         try:
-            from vid_preprocessing.landmark_tracer import (  # noqa: PLC0415
+            from preprocessing.landmark_tracer import (  # noqa: PLC0415
                 LandmarkTracer,
                 _LEFT_EYE_EAR_IDX,
             )
@@ -133,7 +133,7 @@ class TestDerivedMetrics:
     def test_jaw_open_ratio_closed(self):
         """jaw_open_ratio should be near 0 when upper/lower lip are coincident."""
         try:
-            from vid_preprocessing.landmark_tracer import (  # noqa: PLC0415
+            from preprocessing.landmark_tracer import (  # noqa: PLC0415
                 LandmarkTracer,
                 _UPPER_LIP_IDX,
                 _LOWER_LIP_IDX,
@@ -157,7 +157,7 @@ class TestDerivedMetrics:
     def test_jaw_open_ratio_open(self):
         """jaw_open_ratio should increase as lip gap increases."""
         try:
-            from vid_preprocessing.landmark_tracer import (  # noqa: PLC0415
+            from preprocessing.landmark_tracer import (  # noqa: PLC0415
                 LandmarkTracer,
                 _UPPER_LIP_IDX,
                 _LOWER_LIP_IDX,
@@ -187,7 +187,7 @@ class TestLandmarkTracerNoCrop:
     def test_trace_none_crop_returns_failure_result(self):
         """trace() with face_crop_rgb=None must return detection_success=False."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -206,7 +206,7 @@ class TestLandmarkTracerNoCrop:
     def test_trace_wrong_shape_returns_failure(self):
         """trace() with a 2D array (wrong shape) must return detection_success=False."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -221,7 +221,7 @@ class TestLandmarkTracerNoCrop:
         Result must be returned (not raised) with detection_success=False.
         """
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
             import mediapipe  # noqa: PLC0415, F401
         except ImportError:
             pytest.skip("mediapipe or landmark_tracer not installed")
@@ -232,7 +232,7 @@ class TestLandmarkTracerNoCrop:
         # On a blank frame, MediaPipe should fail gracefully
         assert result.detection_success is False or result.detection_success is True
         # Either way: no exception, and the result type is correct
-        from vid_preprocessing.result_types import FaceLandmarkResult  # noqa: PLC0415
+        from preprocessing.result_types import FaceLandmarkResult  # noqa: PLC0415
         assert isinstance(result, FaceLandmarkResult)
 
 
@@ -245,7 +245,7 @@ class TestLandmarkTracerLifecycle:
     def test_reset_clears_ema_states(self):
         """reset() must clear all per-track EMA state dictionaries."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -258,7 +258,7 @@ class TestLandmarkTracerLifecycle:
     def test_close_via_context_manager(self):
         """LandmarkTracer must support 'with' statement without raising."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -270,7 +270,7 @@ class TestLandmarkTracerLifecycle:
     def test_repr(self):
         """__repr__ must contain class name and key params."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 
@@ -289,7 +289,7 @@ class TestPixelConversion:
     def test_pixel_conversion_scale(self):
         """Normalised landmark at (1.0, 1.0) must map to (width, height)."""
         try:
-            from vid_preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
+            from preprocessing.landmark_tracer import LandmarkTracer  # noqa: PLC0415
         except ImportError:
             pytest.skip("landmark_tracer not importable")
 

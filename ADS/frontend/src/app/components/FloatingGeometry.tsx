@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -22,15 +22,11 @@ function Shape({
   color: string;
 }) {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const [s] = useState(() => 0.12 + Math.random() * 0.18);
-  const [rotSpeeds] = useState(() => ({
-    x: 0.1 + Math.random() * 0.2,
-    y: 0.15 + Math.random() * 0.25,
-  }));
+  const s = 0.12 + Math.random() * 0.18;
 
   useFrame((_, delta) => {
-    meshRef.current.rotation.x += delta * rotSpeeds.x;
-    meshRef.current.rotation.y += delta * rotSpeeds.y;
+    meshRef.current.rotation.x += delta * (0.1 + Math.random() * 0.2);
+    meshRef.current.rotation.y += delta * (0.15 + Math.random() * 0.25);
     meshRef.current.position.y += Math.sin(Date.now() * 0.001 + position[0]) * delta * 0.1;
   });
 
@@ -44,8 +40,8 @@ function Shape({
 }
 
 function Scene({ count }: { count: number }) {
-  const [items] = useState<{ type: number; position: [number, number, number]; color: string; }[]>(() =>
-    Array.from({ length: count }, (_, i) => ({
+  const items = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
       type: i % shapes.length,
       position: [
         (Math.random() - 0.5) * 12,
@@ -53,10 +49,8 @@ function Scene({ count }: { count: number }) {
         (Math.random() - 0.5) * 6 - 2,
       ] as [number, number, number],
       color: shapes[i % shapes.length].color,
-    }))
-  );
-
-  if (items.length === 0) return null;
+    }));
+  }, [count]);
 
   return (
     <>

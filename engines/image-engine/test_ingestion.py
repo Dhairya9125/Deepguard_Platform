@@ -5,7 +5,7 @@ from PIL import Image
 from pathlib import Path
 import json
 
-from img_ingestion.media_ingestion import IngestionEngine
+from ingestion.media_ingestion import IngestionEngine
 
 def create_dummy_ai_image(path):
     # Create dummy image

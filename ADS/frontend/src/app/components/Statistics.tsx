@@ -94,7 +94,7 @@ export default function Statistics() {
                   target={stat.value}
                   suffix={stat.suffix}
                   decimals={stat.decimals}
-                  multiplier={"multiplier" in stat ? stat.multiplier : undefined}
+                  multiplier={"multiplier" in stat ? (stat as any).multiplier : undefined}
                   inView={inView}
                 />
               </div>

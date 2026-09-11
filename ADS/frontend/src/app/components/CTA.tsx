@@ -32,16 +32,16 @@ export default function CTA() {
         initial={{ opacity: 0, y: 40 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="relative z-10 max-w-3xl mx-auto flex flex-col items-center text-center"
+        className="relative z-10 max-w-3xl mx-auto text-center"
       >
-        <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono mb-6">
+        <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
           Get Started
         </span>
-        <h2 className="text-4xl md:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
+        <h2 className="mt-6 text-4xl md:text-7xl font-extrabold tracking-tight leading-[1.05]">
           Ready to{" "}
           <span className="text-gradient-blue">protect the truth</span>?
         </h2>
-        <p className="text-white/50 text-lg max-w-xl mx-auto leading-relaxed">
+        <p className="mt-6 text-white/50 text-lg max-w-xl mx-auto">
           Join thousands of organizations worldwide using TRUX to detect deepfakes and verify digital media authenticity.
         </p>
         <div className="mt-10 flex flex-wrap gap-4 justify-center">

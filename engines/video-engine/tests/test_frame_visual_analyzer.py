@@ -41,7 +41,7 @@ def _make_frame_visual_result(
     detection_success=True,
 ):
     try:
-        from vid_feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
+        from feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
     except ImportError:
         pytest.skip("result_types_l2 not importable")
     return FrameVisualResult(
@@ -96,7 +96,7 @@ class TestFrameVisualResultDataclass:
 
     def test_n_manipulated_regions_with_boxes(self):
         try:
-            from vid_feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
+            from feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types_l2 not importable")
         r = FrameVisualResult(
@@ -124,7 +124,7 @@ class TestFrameVisualResultDataclass:
 
     def test_to_dict_none_arrays_when_failed(self):
         try:
-            from vid_feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
+            from feature_extraction.result_types_l2 import FrameVisualResult  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types_l2 not importable")
         r = FrameVisualResult(
@@ -146,7 +146,7 @@ class TestBranchAResult:
 
     def _make_branch_a(self):
         try:
-            from vid_feature_extraction.result_types_l2 import BranchAResult  # noqa: PLC0415
+            from feature_extraction.result_types_l2 import BranchAResult  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types_l2 not importable")
 
@@ -221,7 +221,7 @@ class TestBranchAResult:
         # track_001 mean_prob=0.5, which is not > 0.5, so REAL
         # make it FAKE by using prob 0.9 and 0.9
         try:
-            from vid_feature_extraction.result_types_l2 import BranchAResult  # noqa: PLC0415
+            from feature_extraction.result_types_l2 import BranchAResult  # noqa: PLC0415
         except ImportError:
             pytest.skip("result_types_l2 not importable")
         r1 = _make_frame_visual_result("track_001", 0, 0.0,   fake_probability=0.9)
@@ -238,7 +238,7 @@ class TestIDSAdapterPathResolution:
 
     def test_resolve_ids_path_finds_image_engine(self):
         try:
-            from vid_feature_extraction.ids_adapter import _resolve_ids_path  # noqa: PLC0415
+            from feature_extraction.ids_adapter import _resolve_ids_path  # noqa: PLC0415
         except ImportError:
             pytest.skip("ids_adapter not importable")
         ids_path = _resolve_ids_path()
@@ -249,7 +249,7 @@ class TestIDSAdapterPathResolution:
     def test_ensure_ids_on_path_idempotent(self):
         """Calling _ensure_ids_on_path() twice must not duplicate path entries."""
         try:
-            from vid_feature_extraction.ids_adapter import (  # noqa: PLC0415
+            from feature_extraction.ids_adapter import (  # noqa: PLC0415
                 _ensure_ids_on_path,
                 _resolve_ids_path,
             )
@@ -304,7 +304,7 @@ class TestFrameVisualAnalyzerStructural:
 
     def test_analyze_crop_none_returns_failure(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         analyzer = FrameVisualAnalyzer()
@@ -314,7 +314,7 @@ class TestFrameVisualAnalyzerStructural:
 
     def test_analyze_crop_wrong_shape_returns_failure(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         analyzer = FrameVisualAnalyzer()
@@ -325,7 +325,7 @@ class TestFrameVisualAnalyzerStructural:
     def test_analyze_crop_with_mocked_ids(self):
         """analyze_crop should return a valid FrameVisualResult when IDS is mocked."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -350,7 +350,7 @@ class TestFrameVisualAnalyzerStructural:
     def test_analyze_crop_resizes_non_224(self):
         """analyze_crop must handle crops that are not 224x224."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -364,7 +364,7 @@ class TestFrameVisualAnalyzerStructural:
 
     def test_repr(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         analyzer = FrameVisualAnalyzer(device="cpu", batch_size=4)
@@ -409,7 +409,7 @@ class TestBatchProcessing:
 
     def test_batch_of_four_all_succeed(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -428,7 +428,7 @@ class TestBatchProcessing:
     def test_batch_with_mixed_valid_invalid(self):
         """Batch with 2 valid crops and 1 None should produce 2 success, 1 failure."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -451,7 +451,7 @@ class TestBatchProcessing:
     def test_batch_single_crop(self):
         """Batch of size 1 must work correctly."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -478,7 +478,7 @@ class TestAnalyzeFromLayer1:
         Does NOT require real video or FFmpeg — pure in-memory stub.
         """
         try:
-            from vid_preprocessing.result_types import (  # noqa: PLC0415
+            from preprocessing.result_types import (  # noqa: PLC0415
                 FramePacket, TrackedFace, VideoMetadata,
                 VideoPreprocessingResult, SceneBoundary,
             )
@@ -540,8 +540,8 @@ class TestAnalyzeFromLayer1:
 
     def test_analyze_returns_branch_a_result(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
-            from vid_feature_extraction.result_types_l2       import BranchAResult       # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.result_types_l2       import BranchAResult       # noqa: PLC0415
         except ImportError:
             pytest.skip("modules not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -580,7 +580,7 @@ class TestAnalyzeFromLayer1:
     def test_analyze_result_has_all_tracks(self):
         """BranchAResult must have an entry for each unique track ID."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("modules not importable")
         pytest.importorskip("torch", reason="PyTorch not installed")
@@ -620,8 +620,8 @@ class TestAnalyzeFromLayer1:
     def test_analyze_empty_layer1_returns_empty(self):
         """analyze() on a Layer 1 result with no tracked faces returns empty BranchAResult."""
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
-            from vid_preprocessing.result_types import (  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from preprocessing.result_types import (  # noqa: PLC0415
                 FramePacket, VideoMetadata, VideoPreprocessingResult, SceneBoundary,
             )
         except ImportError:
@@ -651,7 +651,7 @@ class TestAnalyzeFromLayer1:
 
     def test_unload_clears_ids(self):
         try:
-            from vid_feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
+            from feature_extraction.frame_visual_analyzer import FrameVisualAnalyzer  # noqa: PLC0415
         except ImportError:
             pytest.skip("frame_visual_analyzer not importable")
         analyzer = FrameVisualAnalyzer()

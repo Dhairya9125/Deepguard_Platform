@@ -28,7 +28,7 @@ def _make_blank_frame(height=240, width=320, color=(80, 120, 200)):
 def _make_frame_packet(frame_id: int, rgb=None):
     """Return a minimal FramePacket for testing."""
     try:
-        from vid_preprocessing.result_types import FramePacket  # noqa: PLC0415
+        from preprocessing.result_types import FramePacket  # noqa: PLC0415
     except ImportError:
         pytest.skip("result_types not importable")
     return FramePacket(
@@ -47,7 +47,7 @@ class TestFaceTrackerInit:
     def test_valid_backends(self):
         """FaceTracker accepts 'dnn' and 'retinaface' as backend values."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         FaceTracker(backend="dnn")
@@ -56,7 +56,7 @@ class TestFaceTrackerInit:
     def test_invalid_backend_raises(self):
         """FaceTracker must raise ValueError for unknown backend."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         with pytest.raises(ValueError, match="backend must be"):
@@ -65,7 +65,7 @@ class TestFaceTrackerInit:
     def test_repr(self):
         """__repr__ must mention key parameters."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         tracker = FaceTracker(backend="dnn", max_age=15)
@@ -76,7 +76,7 @@ class TestFaceTrackerInit:
     def test_reset_clears_state(self):
         """reset() must clear the track ID map and reset the counter."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         tracker = FaceTracker(backend="dnn")
@@ -94,7 +94,7 @@ class TestFaceTrackerStableIDs:
     def test_same_deepsort_id_gives_same_stable_id(self):
         """The same DeepSORT integer ID must always resolve to the same string."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         tracker = FaceTracker(backend="dnn")
@@ -105,7 +105,7 @@ class TestFaceTrackerStableIDs:
     def test_different_deepsort_ids_give_different_stable_ids(self):
         """Two different DeepSORT IDs must map to different stable strings."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         tracker = FaceTracker(backend="dnn")
@@ -116,7 +116,7 @@ class TestFaceTrackerStableIDs:
     def test_stable_id_format(self):
         """Stable IDs must be zero-padded 'track_XXX' strings."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
         tracker = FaceTracker(backend="dnn")
@@ -132,8 +132,8 @@ class TestFaceTrackerNullFrame:
     def test_update_with_no_rgb_returns_empty(self):
         """update() on a FramePacket with rgb_array=None must return []."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
-            from vid_preprocessing.result_types  import FramePacket  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.result_types  import FramePacket  # noqa: PLC0415
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -149,7 +149,7 @@ class TestFaceTrackerCropDNN:
     def test_crop_dnn_returns_target_size(self):
         """_crop_dnn must return an array of exactly target_size."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
 
@@ -163,7 +163,7 @@ class TestFaceTrackerCropDNN:
     def test_crop_dnn_clamps_padding(self):
         """_crop_dnn must not raise when padded bbox exceeds frame boundary."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
 
@@ -179,7 +179,7 @@ class TestFaceTrackerIoUMatching:
     def test_match_track_to_face_high_iou(self):
         """_match_track_to_face must return the face with highest IoU above threshold."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
 
@@ -194,7 +194,7 @@ class TestFaceTrackerIoUMatching:
     def test_match_track_to_face_low_iou_returns_none(self):
         """_match_track_to_face must return None when best IoU < threshold."""
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
         except ImportError:
             pytest.skip("face_tracker not importable")
 
@@ -215,8 +215,8 @@ class TestFaceTrackerProcessVideo:
         (blank video = no real faces) and verify no exception is raised.
         """
         try:
-            from vid_preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
-            from vid_preprocessing.result_types  import FramePacket  # noqa: PLC0415
+            from preprocessing.face_tracker import FaceTracker  # noqa: PLC0415
+            from preprocessing.result_types  import FramePacket  # noqa: PLC0415
         except ImportError:
             pytest.skip("modules not importable")
 

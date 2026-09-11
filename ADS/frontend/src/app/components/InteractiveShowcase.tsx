@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
 const showcases = [
@@ -21,29 +21,44 @@ const showcases = [
   },
 ];
 
-const Visual = ({
+function ShowcaseRow({
+  item,
   index,
   inView,
 }: {
+  item: (typeof showcases)[0];
   index: number;
   inView: boolean;
-}) => {
-  const [particles] = useState<{x: number[], y: number[], duration: number, delay: number}[]>(() =>
-    [...Array(6)].map(() => ({
-      x: [Math.random() * 200 - 100, Math.random() * 200 - 100],
-      y: [Math.random() * 200 - 100, Math.random() * 200 - 100],
-      duration: 3 + Math.random() * 2,
-      delay: Math.random() * 2,
-    }))
-  );
-  const [waveform] = useState<{h: number, duration: number}[]>(() =>
-    [4, 6, 8, 12, 18, 24, 28, 24, 18, 12, 8, 6, 4, 6, 8, 12, 18, 24, 28, 24, 18, 12, 8, 6, 4].map((h) => ({
-      h,
-      duration: 0.8 + Math.random() * 0.4,
-    }))
+}) {
+  const isLeft = item.side === "left";
+  const Content = (
+    <motion.div
+      initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{
+        duration: 0.8,
+        delay: 0.2,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
+      className="flex flex-col justify-center"
+    >
+      <span className="text-xs tracking-[0.3em] uppercase text-white/30 font-mono mb-4">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+        {item.title}
+      </h3>
+      <p className="text-white/50 leading-relaxed max-w-md">{item.desc}</p>
+    </motion.div>
   );
 
-  return (
+  const Visual = ({
+    index,
+    inView,
+  }: {
+    index: number;
+    inView: boolean;
+  }) => (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={inView ? { opacity: 1, scale: 1 } : {}}
@@ -54,6 +69,7 @@ const Visual = ({
       }}
       className="relative flex items-center justify-center min-h-[180px]"
     >
+
       {index === 0 && (
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Scanning frame */}
@@ -62,6 +78,7 @@ const Visual = ({
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
           >
+            {/* Corner brackets */}
             <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-blue-400/60 rounded-tl-lg" />
             <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-blue-400/60 rounded-tr-lg" />
             <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-blue-400/60 rounded-bl-lg" />
@@ -92,19 +109,19 @@ const Visual = ({
           </motion.div>
 
           {/* Data particles */}
-          {particles.map((p, i) => (
+          {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-1 h-1 rounded-full bg-blue-400/60"
               animate={{
-                x: p.x,
-                y: p.y,
+                x: [Math.random() * 200 - 100, Math.random() * 200 - 100],
+                y: [Math.random() * 200 - 100, Math.random() * 200 - 100],
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: p.duration,
+                duration: 3 + Math.random() * 2,
                 repeat: Infinity,
-                delay: p.delay,
+                delay: Math.random() * 2,
                 ease: "linear",
               }}
             />
@@ -120,8 +137,8 @@ const Visual = ({
             animate={{ scale: [1, 1.02, 1] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            {waveform.map(
-              (w, i) => (
+            {[4, 6, 8, 12, 18, 24, 28, 24, 18, 12, 8, 6, 4, 6, 8, 12, 18, 24, 28, 24, 18, 12, 8, 6, 4].map(
+              (h, i) => (
                 <motion.div
                   key={i}
                   className="w-1.5 rounded-full"
@@ -130,13 +147,13 @@ const Visual = ({
                   }}
                   animate={{
                     height: [
-                      `${w.h + 10}%`,
-                      `${w.h + 30}%`,
-                      `${w.h + 10}%`,
+                      `${h + Math.random() * 20}%`,
+                      `${h + Math.random() * 40}%`,
+                      `${h + Math.random() * 20}%`,
                     ],
                   }}
                   transition={{
-                    duration: w.duration,
+                    duration: 0.8 + Math.random() * 0.4,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
@@ -242,39 +259,6 @@ const Visual = ({
       )}
     </motion.div>
   );
-};
-function ShowcaseRow({
-  item,
-  index,
-  inView,
-}: {
-  item: (typeof showcases)[0];
-  index: number;
-  inView: boolean;
-}) {
-  const isLeft = item.side === "left";
-  const Content = (
-    <motion.div
-      initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{
-        duration: 0.8,
-        delay: 0.2,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      }}
-      className="flex flex-col justify-center"
-    >
-      <span className="text-xs tracking-[0.3em] uppercase text-white/30 font-mono mb-4">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-        {item.title}
-      </h3>
-      <p className="text-white/50 leading-relaxed max-w-md">{item.desc}</p>
-    </motion.div>
-  );
-
-
 
   return (
     <div
@@ -294,7 +278,7 @@ export default function InteractiveShowcase() {
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="features" className="relative py-32 md:py-40 px-6 md:px-12 border-t border-white/[0.06]">
+    <section className="relative py-32 md:py-40 px-6 md:px-12 border-t border-white/[0.06]">
       <div className="max-w-7xl mx-auto">
         <motion.div
           ref={ref}

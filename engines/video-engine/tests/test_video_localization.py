@@ -17,8 +17,8 @@ from typing import Dict, List, Optional, Tuple
 
 import pytest
 
-from vid_localization.video_localizer import VideoLocalizer
-from vid_localization.result_types import VideoLocalizationResult
+from localization.video_localizer import VideoLocalizer
+from localization.result_types import VideoLocalizationResult
 
 
 # ===========================================================================

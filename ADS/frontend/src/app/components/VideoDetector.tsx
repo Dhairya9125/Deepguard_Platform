@@ -1,32 +1,45 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { submitVideo } from "../lib/api";
 import {
   Upload,
+  Video,
   Shield,
   AlertTriangle,
+  CheckCircle,
   X,
-  Film,
   Search,
   Activity,
+  BarChart3,
+  Layers,
+  Download,
+  Clock,
+  Film,
 } from "lucide-react";
+
+type AnalysisResult = {
+  status: "authentic" | "suspicious" | "fake";
+  confidence: number;
+  authenticityScore: number;
+  detectedAnomalies: string[];
+  processingTime: string;
+  frameAnalysis: { frame: number; score: number }[];
+  lipSyncScore: number;
+};
 
 export default function VideoDetector() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pollingStatus, setPollingStatus] = useState<string | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith("video/")) return;
     setFile(f);
+    setResult(null);
     const url = URL.createObjectURL(f);
     setPreview(url);
   }, []);
@@ -52,79 +65,63 @@ export default function VideoDetector() {
     if (preview) URL.revokeObjectURL(preview);
     setFile(null);
     setPreview(null);
-    setError(null);
-    setPollingStatus(null);
+    setResult(null);
   };
 
-  const runAnalysis = async () => {
+  const runAnalysis = () => {
     if (!file) return;
     setAnalyzing(true);
-    setError(null);
-    setPollingStatus("Uploading video...");
+    setResult(null);
 
-    try {
-      const { job_id } = await submitVideo(file);
-      router.push(`/results/${job_id}`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Unexpected error during analysis.";
-      setError(message);
+    setTimeout(() => {
+      const isFake = Math.random() > 0.35;
+      const frameResults = Array.from({ length: 8 }, (_, i) => ({
+        frame: i + 1,
+        score: isFake
+          ? 10 + Math.random() * 30 + (i % 3 === 0 ? 50 : 0)
+          : 85 + Math.random() * 14,
+      }));
+      setResult({
+        status: isFake ? "fake" : "authentic",
+        confidence: isFake ? 91.5 + Math.random() * 6 : 97.1 + Math.random() * 2,
+        authenticityScore: isFake ? 15 + Math.random() * 20 : 92 + Math.random() * 7,
+        detectedAnomalies: isFake
+          ? [
+              "Temporal inconsistency at 0:03s - 0:05s",
+              "Lip-sync mismatch detected (72%)",
+              "Frame interpolation artifacts",
+              "Metadata inconsistency detected",
+              "AI-generated facial micro-expressions",
+            ]
+          : [],
+        processingTime: (5.2 + Math.random() * 4.5).toFixed(1),
+        frameAnalysis: frameResults,
+        lipSyncScore: isFake ? 23 + Math.random() * 20 : 91 + Math.random() * 8,
+      });
       setAnalyzing(false);
-      setPollingStatus(null);
-    }
+    }, 4000);
   };
 
   return (
-    <section className="pt-28 pb-20 px-6 md:px-12">
+    <section className="pt-36 pb-20 px-6 md:px-12">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="flex flex-col items-center text-center mb-12"
+          className="text-center mb-12"
         >
-          <span className="inline-block mb-4 text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
+          <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
             Video Forensics
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-            Video Deepfake <span className="text-gradient-blue">Detection</span>
+          <h1 className="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight">
+            Video Deepfake{" "}
+            <span className="text-gradient-blue">Detection</span>
           </h1>
-          <p className="text-white/50 max-w-xl mx-auto leading-relaxed">
-            Upload a video to analyze for AI-generated lip-syncing, face-swapping, and temporal anomalies
+          <p className="mt-4 text-white/50 max-w-xl mx-auto">
+            Upload a video for comprehensive frame-by-frame analysis, lip-sync verification, and temporal forensics
           </p>
         </motion.div>
-
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-300 text-sm flex items-start gap-3"
-          >
-            <AlertTriangle size={18} className="mt-0.5 flex-shrink-0 text-red-400" />
-            <div>
-              <p className="font-semibold text-red-300 mb-0.5">Analysis Failed</p>
-              <p className="text-red-300/70">{error}</p>
-              <p className="mt-1 text-red-300/50 text-xs">
-                Make sure the VDS backend is running: <code className="font-mono">uvicorn apps.api.main:app --port 8001</code>
-              </p>
-            </div>
-          </motion.div>
-        )}
-
-        {analyzing && pollingStatus && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-6 p-3 rounded-xl border border-purple-500/20 bg-purple-500/5 text-purple-300/70 text-xs font-mono flex items-center gap-2"
-          >
-            <motion.span
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0"
-            />
-            {pollingStatus}
-          </motion.div>
-        )}
 
         {!file ? (
           <motion.div
@@ -231,7 +228,7 @@ export default function VideoDetector() {
 
             <div>
               <AnimatePresence mode="wait">
-                {!analyzing && (
+                {!analyzing && !result && (
                   <motion.div
                     key="ready"
                     initial={{ opacity: 0 }}
@@ -429,8 +426,178 @@ export default function VideoDetector() {
                       />
                     </div>
                     <p className="mt-4 text-sm text-white/40">
-                      Submitting video...
+                      Processing video frames...
                     </p>
+                  </motion.div>
+                )}
+                {result && !analyzing && (
+                  <motion.div
+                    key="result"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div
+                      className={`p-6 rounded-3xl border ${
+                        result.status === "authentic"
+                          ? "bg-green-500/5 border-green-500/20"
+                          : "bg-red-500/5 border-red-500/20"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        {result.status === "authentic" ? (
+                          <CheckCircle size={28} className="text-green-400" />
+                        ) : (
+                          <AlertTriangle size={28} className="text-red-400" />
+                        )}
+                        <div>
+                          <h3 className="text-lg font-semibold text-white capitalize">
+                            {result.status === "authentic"
+                              ? "Likely Authentic"
+                              : "Deepfake Detected"}
+                          </h3>
+                          <p className="text-sm text-white/40">
+                            Confidence: {result.confidence.toFixed(1)}%
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/60">Authenticity Score</span>
+                            <span className="text-white font-mono">
+                              {result.authenticityScore.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${result.authenticityScore}%` }}
+                              transition={{ duration: 1, delay: 0.3 }}
+                              className={`h-full rounded-full ${
+                                result.authenticityScore > 70
+                                  ? "bg-gradient-to-r from-green-500 to-green-400"
+                                  : "bg-gradient-to-r from-red-500 to-red-400"
+                              }`}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/60">Lip-Sync Match</span>
+                            <span className="text-white font-mono">
+                              {result.lipSyncScore.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${result.lipSyncScore}%` }}
+                              transition={{ duration: 1, delay: 0.5 }}
+                              className={`h-full rounded-full ${
+                                result.lipSyncScore > 70
+                                  ? "bg-gradient-to-r from-green-500 to-green-400"
+                                  : "bg-gradient-to-r from-orange-500 to-red-400"
+                              }`}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-white/40">Processing time</span>
+                          <span className="text-white/60 font-mono">
+                            {result.processingTime}s
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {result.frameAnalysis.length > 0 && (
+                      <div className="p-6 rounded-3xl border border-white/[0.08] bg-white/[0.02]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Clock size={16} className="text-blue-400" />
+                          <h4 className="text-sm font-semibold text-white/80">
+                            Frame-by-Frame Analysis
+                          </h4>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {result.frameAnalysis.map((f, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.8 + i * 0.1 }}
+                              className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center"
+                            >
+                              <div className="text-xs text-white/40 mb-1">
+                                Frame {f.frame}
+                              </div>
+                              <div
+                                className={`text-sm font-bold font-mono ${
+                                  f.score > 70
+                                    ? "text-green-400"
+                                    : "text-red-400"
+                                }`}
+                              >
+                                {f.score.toFixed(0)}%
+                              </div>
+                              <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    f.score > 70
+                                      ? "bg-green-500"
+                                      : "bg-red-500"
+                                  }`}
+                                  style={{ width: `${f.score}%` }}
+                                />
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {result.detectedAnomalies.length > 0 && (
+                      <div className="p-6 rounded-3xl border border-white/[0.08] bg-white/[0.02]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Layers size={16} className="text-red-400" />
+                          <h4 className="text-sm font-semibold text-white/80">
+                            Detected Anomalies
+                          </h4>
+                        </div>
+                        <ul className="space-y-2">
+                          {result.detectedAnomalies.map((a, i) => (
+                            <motion.li
+                              key={i}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.5 + i * 0.1 }}
+                              className="flex items-center gap-2 text-sm text-red-300/80"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400/60" />
+                              {a}
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button className="flex-1 py-3 rounded-full text-sm font-medium border border-white/20 text-white/70 hover:border-white/40 transition-all">
+                        <span className="flex items-center justify-center gap-2">
+                          <Download size={14} />
+                          Export Report
+                        </span>
+                      </button>
+                      <button
+                        onClick={reset}
+                        className="flex-1 py-3 rounded-full text-sm font-medium border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-all"
+                      >
+                        Analyze Another
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

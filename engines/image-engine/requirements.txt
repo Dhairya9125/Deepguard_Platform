@@ -23,4 +23,4 @@ torchmetrics
 mlflow>=1.4.1
 imagehash
 exifread>=1.4.1
-piexif>=1.1.3
+piexif>=1.4.1

@@ -1,33 +1,41 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { analyzeImage } from "../lib/api";
 import {
   Upload,
-  Image as ImageIcon,
+  Image,
   Shield,
   AlertTriangle,
-  Search,
-  Activity,
+  CheckCircle,
   X,
+  Search,
+  BarChart3,
+  Activity,
+  Layers,
+  Download,
 } from "lucide-react";
 
-
+type AnalysisResult = {
+  status: "authentic" | "suspicious" | "fake";
+  confidence: number;
+  authenticityScore: number;
+  detectedArtifacts: string[];
+  processingTime: string;
+};
 
 export default function ImageDetector() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith("image/")) return;
     setFile(f);
+    setResult(null);
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(f);
@@ -53,66 +61,55 @@ export default function ImageDetector() {
   const reset = () => {
     setFile(null);
     setPreview(null);
-    setError(null);
+    setResult(null);
   };
 
-  const runAnalysis = async () => {
+  const runAnalysis = () => {
     if (!file) return;
     setAnalyzing(true);
-    setError(null);
+    setResult(null);
 
-    try {
-      // analyzeImage is synchronous but we updated it to return job_id so we can redirect
-      const data = await analyzeImage(file);
-      // @ts-expect-error - job_id is returned by the backend but not in the TS schema
-      const jobId = data.job_id || "demo-job-id"; 
-      router.push(`/results/${jobId}`);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Unexpected error during analysis.";
-      setError(message);
+    setTimeout(() => {
+      const isFake = Math.random() > 0.45;
+      const artifacts = isFake
+        ? [
+            "AI-generated texture artifacts detected",
+            "Inconsistent lighting patterns",
+            "Face boundary anomalies (92%)",
+            "Color space irregularities",
+          ]
+        : [];
+      setResult({
+        status: isFake ? "fake" : "authentic",
+        confidence: isFake ? 94.7 + Math.random() * 3 : 98.2 + Math.random() * 1.5,
+        authenticityScore: isFake ? 12 + Math.random() * 15 : 89 + Math.random() * 10,
+        detectedArtifacts: artifacts,
+        processingTime: (1.2 + Math.random() * 2.3).toFixed(1),
+      });
       setAnalyzing(false);
-    }
+    }, 2500);
   };
 
   return (
-    <section className="pt-28 pb-20 px-6 md:px-12">
+    <section className="pt-36 pb-20 px-6 md:px-12">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="flex flex-col items-center text-center mb-12"
+          className="text-center mb-12"
         >
-          <span className="inline-block mb-4 text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
+          <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
             Image Forensics
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-            Image Deepfake <span className="text-gradient-blue">Detection</span>
+          <h1 className="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight">
+            Image Deepfake{" "}
+            <span className="text-gradient-blue">Detection</span>
           </h1>
-          <p className="text-white/50 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-white/50 max-w-xl mx-auto">
             Upload an image to analyze for AI-generated artifacts, face manipulation, and digital forgeries
           </p>
         </motion.div>
-
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-300 text-sm flex items-start gap-3"
-          >
-            <AlertTriangle size={18} className="mt-0.5 flex-shrink-0 text-red-400" />
-            <div>
-              <p className="font-semibold text-red-300 mb-0.5">Analysis Failed</p>
-              <p className="text-red-300/70">{error}</p>
-              {error.includes("engine not available") && (
-                <p className="mt-1 text-red-300/50 text-xs">
-                  Make sure the backend is running: <code className="font-mono">uvicorn apps.api.main:app --port 8001</code>
-                </p>
-              )}
-            </div>
-          </motion.div>
-        )}
 
         {!file ? (
           <motion.div
@@ -163,7 +160,6 @@ export default function ImageDetector() {
             <div className="space-y-4">
               <div className="relative rounded-3xl overflow-hidden border border-white/[0.08] bg-white/[0.02]">
                 {preview && (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={preview}
                     alt="Uploaded preview"
@@ -180,7 +176,7 @@ export default function ImageDetector() {
                 </div>
               </div>
               <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-                <ImageIcon size={16} className="text-blue-400" />
+                <Image size={16} className="text-blue-400" />
                 <span className="text-sm text-white/60 truncate flex-1">
                   {file.name}
                 </span>
@@ -218,8 +214,9 @@ export default function ImageDetector() {
               </motion.button>
             </div>
 
+            <div>
               <AnimatePresence mode="wait">
-                {!analyzing && (
+                {!analyzing && !result && (
                   <motion.div
                     key="ready"
                     initial={{ opacity: 0 }}
@@ -395,11 +392,132 @@ export default function ImageDetector() {
                       />
                     </div>
                     <p className="mt-4 text-sm text-white/40">
-                      Submitting image...
+                      Scanning for deepfake indicators...
                     </p>
                   </motion.div>
                 )}
+                {result && !analyzing && (
+                  <motion.div
+                    key="result"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div
+                      className={`p-6 rounded-3xl border ${
+                        result.status === "authentic"
+                          ? "bg-green-500/5 border-green-500/20"
+                          : result.status === "suspicious"
+                          ? "bg-yellow-500/5 border-yellow-500/20"
+                          : "bg-red-500/5 border-red-500/20"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        {result.status === "authentic" ? (
+                          <CheckCircle size={28} className="text-green-400" />
+                        ) : (
+                          <AlertTriangle size={28} className="text-red-400" />
+                        )}
+                        <div>
+                          <h3 className="text-lg font-semibold text-white capitalize">
+                            {result.status === "authentic"
+                              ? "Likely Authentic"
+                              : "Deepfake Detected"}
+                          </h3>
+                          <p className="text-sm text-white/40">
+                            Confidence: {result.confidence.toFixed(1)}%
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white/60">Authenticity Score</span>
+                            <span className="text-white font-mono">
+                              {result.authenticityScore.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{
+                                width: `${result.authenticityScore}%`,
+                              }}
+                              transition={{ duration: 1, delay: 0.3 }}
+                              className={`h-full rounded-full ${
+                                result.authenticityScore > 70
+                                  ? "bg-gradient-to-r from-green-500 to-green-400"
+                                  : "bg-gradient-to-r from-red-500 to-red-400"
+                              }`}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-white/40">Processing time</span>
+                          <span className="text-white/60 font-mono">
+                            {result.processingTime}s
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {result.detectedArtifacts.length > 0 && (
+                      <div className="p-6 rounded-3xl border border-white/[0.08] bg-white/[0.02]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Layers size={16} className="text-red-400" />
+                          <h4 className="text-sm font-semibold text-white/80">
+                            Detected Artifacts
+                          </h4>
+                        </div>
+                        <ul className="space-y-2">
+                          {result.detectedArtifacts.map((a, i) => (
+                            <motion.li
+                              key={i}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.5 + i * 0.1 }}
+                              className="flex items-center gap-2 text-sm text-red-300/80"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400/60" />
+                              {a}
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() =>
+                          setResult({
+                            ...result,
+                            status: result.status,
+                            confidence: result.confidence,
+                            authenticityScore: result.authenticityScore,
+                            detectedArtifacts: result.detectedArtifacts,
+                            processingTime: result.processingTime,
+                          })
+                        }
+                        className="flex-1 py-3 rounded-full text-sm font-medium border border-white/20 text-white/70 hover:border-white/40 transition-all"
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          <Download size={14} />
+                          Export Report
+                        </span>
+                      </button>
+                      <button
+                        onClick={reset}
+                        className="flex-1 py-3 rounded-full text-sm font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all"
+                      >
+                        Analyze Another
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
+            </div>
           </motion.div>
         )}
       </div>

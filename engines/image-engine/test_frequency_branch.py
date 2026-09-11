@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-from img_preprocessing.frequency_analyzer import FrequencyAnalyzer
-from img_feature_extraction.frequency_branch import EfficientNetFrequencyBranch
+from preprocessing.frequency_analyzer import FrequencyAnalyzer
+from feature_extraction.frequency_branch import EfficientNetFrequencyBranch
 
 def test():
     print("Testing Layer 2 Branch B: EfficientNetFrequencyBranch...")

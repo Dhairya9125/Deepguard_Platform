@@ -3,7 +3,7 @@ import torch
 import cv2
 from pathlib import Path
 
-from img_explainability.explainability_engine import ExplainabilityEngine
+from explainability.explainability_engine import ExplainabilityEngine
 
 def test():
     print("Testing Layer 5: Explainability Engine...")

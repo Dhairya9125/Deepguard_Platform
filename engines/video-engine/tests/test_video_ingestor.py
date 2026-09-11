@@ -57,7 +57,7 @@ def ingestor():
     """Instantiate VideoIngestor — this validates FFmpeg availability."""
     pytest.importorskip("cv2",       reason="opencv-python not installed")
     try:
-        from vid_preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
+        from preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
     except RuntimeError as exc:
         pytest.skip(f"FFmpeg not available: {exc}")
     return VideoIngestor(target_fps=8.0, save_frames=False)
@@ -72,7 +72,7 @@ class TestVideoIngestorBasic:
     def test_ffmpeg_validation(self):
         """FFmpeg presence is checked at import / instantiation time."""
         try:
-            from vid_preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
+            from preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
             _ = VideoIngestor()
         except RuntimeError as exc:
             # Expected if FFmpeg is not installed in CI — mark as skip, not fail
@@ -157,7 +157,7 @@ class TestVideoIngestorSaveFrames:
         """save_frames=True must create JPEG files in workspace/frames/."""
         pytest.importorskip("cv2", reason="opencv-python not installed")
         try:
-            from vid_preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
+            from preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
         except (RuntimeError, ImportError) as exc:
             pytest.skip(str(exc))
 
@@ -179,7 +179,7 @@ class TestVideoIngestorEdgeCases:
     def test_missing_video_raises(self, tmp_path):
         """ingest() must raise FileNotFoundError for a non-existent file."""
         try:
-            from vid_preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
+            from preprocessing.video_ingestor import VideoIngestor  # noqa: PLC0415
         except (RuntimeError, ImportError) as exc:
             pytest.skip(str(exc))
 

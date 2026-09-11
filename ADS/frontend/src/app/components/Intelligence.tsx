@@ -141,7 +141,13 @@ function DonutChart({ inView }: { inView: boolean }) {
     return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`;
   };
 
-
+  const innerArc = (startAngle: number, endAngle: number) => {
+    const is = polarToCart(startAngle);
+    const ie = polarToCart(endAngle);
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+    const ir2 = ir;
+    return `M ${is.x} ${is.y} A ${ir2} ${ir2} 0 ${largeArc} 0 ${ie.x} ${ie.y}`;
+  };
 
   return (
     <div className="flex items-center gap-6">
@@ -151,6 +157,7 @@ function DonutChart({ inView }: { inView: boolean }) {
           cumulative += seg.value;
           const endAngle = (cumulative / total) * 360;
           const outer = arcPath(startAngle, endAngle);
+          const inner = innerArc(startAngle, endAngle);
           const slicePath = `${outer} L ${polarToCart(endAngle).x} ${polarToCart(endAngle).y} L ${polarToCart(startAngle).x} ${polarToCart(startAngle).y} Z`;
 
           return (
@@ -330,7 +337,7 @@ export default function Intelligence() {
   const [activeTab, setActiveTab] = useState<Tab>("Analytics");
 
   return (
-    <section id="capabilities" className="relative py-32 md:py-40 px-6 md:px-12 border-t border-white/[0.06]">
+    <section id="intelligence" className="relative py-32 md:py-40 px-6 md:px-12 border-t border-white/[0.06]">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -344,16 +351,16 @@ export default function Intelligence() {
           initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex flex-col items-center text-center mb-12"
+          className="text-center mb-12"
         >
-          <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono mb-4">
+          <span className="text-xs tracking-[0.3em] uppercase text-white/40 font-mono">
             Intelligence
           </span>
-          <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+          <h2 className="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight">
             Analytics &{" "}
             <span className="text-gradient-blue">Model Monitoring</span>
           </h2>
-          <p className="text-white/50 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+          <p className="mt-4 text-white/50 max-w-xl mx-auto text-sm md:text-base">
             Real-time insights into detection performance, model health, and system metrics
           </p>
         </motion.div>

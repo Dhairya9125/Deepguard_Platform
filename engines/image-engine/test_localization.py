@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-from img_localization.localization_engine import LocalizationEngine
+from localization.localization_engine import LocalizationEngine
 
 def test():
     print("Testing Layer 4: Localization Engine...")

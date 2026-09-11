@@ -6,19 +6,20 @@ import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "../lib/utils";
 import MagneticButton from "./MagneticButton";
-import { useAuth } from "../contexts/AuthContext";
+import { useTruxStore } from "../lib/store";
 
 const NAV_LINKS = [
   { label: "Home", href: "#hero" },
   { label: "Features", href: "#features" },
   { label: "Solutions", href: "#capabilities" },
   { label: "Pricing", href: "#pricing" },
+  { label: "Contact", href: "#cta" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, logout, loading } = useAuth();
+  const { setModalOpen } = useTruxStore();
   const pathname = usePathname();
   const router = useRouter();
   const isHome = pathname === "/";
@@ -87,53 +88,19 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-4">
-          {!loading && user ? (
-            <>
-              <span className="text-sm text-white/60">{user.first_name || user.username || user.email}</span>
-              <MagneticButton>
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-                >
-                  Dashboard
-                </button>
-              </MagneticButton>
-              <MagneticButton>
-                <button
-                  onClick={logout}
-                  className="relative px-5 py-2.5 text-sm font-medium text-white rounded-full
-                    bg-white/10 hover:bg-white/20 border border-white/10
-                    transition-all duration-300 shadow-lg shadow-white/5 active:scale-[0.98]"
-                >
-                  Logout
-                </button>
-              </MagneticButton>
-            </>
-          ) : !loading ? (
-            <>
-              <MagneticButton>
-                <button
-                  onClick={() => router.push('/login')}
-                  className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-                >
-                  Login
-                </button>
-              </MagneticButton>
-              <MagneticButton>
-                <button
-                  onClick={() => router.push('/register')}
-                  className="relative px-5 py-2.5 text-sm font-medium text-white rounded-full
-                    bg-gradient-to-r from-blue-600 to-blue-500
-                    hover:from-blue-500 hover:to-cyan-400
-                    transition-all duration-300 shadow-lg shadow-blue-500/25
-                    hover:shadow-blue-500/40 active:scale-[0.98]"
-                >
-                  Sign Up
-                </button>
-              </MagneticButton>
-            </>
-          ) : null}
+        <div className="hidden md:block">
+          <MagneticButton>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="relative px-5 py-2.5 text-sm font-medium text-white rounded-full
+                bg-gradient-to-r from-blue-600 to-blue-500
+                hover:from-blue-500 hover:to-cyan-400
+                transition-all duration-300 shadow-lg shadow-blue-500/25
+                hover:shadow-blue-500/40 active:scale-[0.98]"
+            >
+              Start Now
+            </button>
+          </MagneticButton>
         </div>
 
         <button
@@ -168,52 +135,16 @@ export default function Navbar() {
                 {link.label}
               </motion.a>
             ))}
-
-            {!loading && user ? (
-              <>
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  onClick={() => { setMobileOpen(false); router.push('/dashboard'); }}
-                  className="text-2xl font-bold text-white/80 hover:text-white"
-                >
-                  Dashboard
-                </motion.button>
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  onClick={() => { setMobileOpen(false); logout(); }}
-                  className="mt-4 px-8 py-3 text-lg font-medium text-white rounded-full
-                    bg-white/10 border border-white/20"
-                >
-                  Logout
-                </motion.button>
-              </>
-            ) : !loading ? (
-              <>
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  onClick={() => { setMobileOpen(false); router.push('/login'); }}
-                  className="text-2xl font-bold text-white/80 hover:text-white"
-                >
-                  Login
-                </motion.button>
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  onClick={() => { setMobileOpen(false); router.push('/register'); }}
-                  className="mt-4 px-8 py-3 text-lg font-medium text-white rounded-full
-                    bg-gradient-to-r from-blue-600 to-blue-500"
-                >
-                  Sign Up
-                </motion.button>
-              </>
-            ) : null}
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              onClick={() => setModalOpen(true)}
+              className="mt-4 px-8 py-3 text-lg font-medium text-white rounded-full
+                bg-gradient-to-r from-blue-600 to-blue-500"
+            >
+              Start Now
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>

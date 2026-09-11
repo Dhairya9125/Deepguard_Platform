@@ -35,7 +35,7 @@ def _make_branch_a_result(
     Embeddings are random (2560,) float32 arrays; heatmaps are random (224,224).
     """
     try:
-        from vid_feature_extraction.result_types_l2 import BranchAResult, FrameVisualResult  # noqa
+        from feature_extraction.result_types_l2 import BranchAResult, FrameVisualResult  # noqa
     except ImportError:
         pytest.skip("result_types_l2 not importable")
 
@@ -82,7 +82,7 @@ def _make_layer1_result(
     Does not require FFmpeg, DeepSORT, or MediaPipe.
     """
     try:
-        from vid_preprocessing.result_types import (  # noqa
+        from preprocessing.result_types import (  # noqa
             FaceLandmarkResult, FramePacket, SceneBoundary,
             VideoMetadata, VideoPreprocessingResult,
         )
@@ -150,62 +150,62 @@ def _make_layer1_result(
 class TestRollingStd:
 
     def test_constant_signal_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import rolling_std  # noqa
+        from feature_extraction.temporal_signals import rolling_std  # noqa
         assert rolling_std([0.5] * 20, window=5) == pytest.approx(0.0)
 
     def test_alternating_signal_high(self):
-        from vid_feature_extraction.temporal_signals import rolling_std  # noqa
+        from feature_extraction.temporal_signals import rolling_std  # noqa
         values = [0.0, 1.0] * 10
         result = rolling_std(values, window=4)
         assert result > 0.3
 
     def test_shorter_than_window_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import rolling_std  # noqa
+        from feature_extraction.temporal_signals import rolling_std  # noqa
         assert rolling_std([0.1, 0.2], window=5) == pytest.approx(0.0)
 
 
 class TestLinearTrend:
 
     def test_rising_trend_positive_slope(self):
-        from vid_feature_extraction.temporal_signals import linear_trend  # noqa
+        from feature_extraction.temporal_signals import linear_trend  # noqa
         values = [float(i) * 0.05 for i in range(20)]
         slope  = linear_trend(values)
         assert slope > 0.04
 
     def test_falling_trend_negative_slope(self):
-        from vid_feature_extraction.temporal_signals import linear_trend  # noqa
+        from feature_extraction.temporal_signals import linear_trend  # noqa
         values = [1.0 - float(i) * 0.05 for i in range(20)]
         slope  = linear_trend(values)
         assert slope < -0.04
 
     def test_constant_slope_is_zero(self):
-        from vid_feature_extraction.temporal_signals import linear_trend  # noqa
+        from feature_extraction.temporal_signals import linear_trend  # noqa
         slope = linear_trend([0.5] * 10)
         assert abs(slope) < 1e-10
 
     def test_single_value_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import linear_trend  # noqa
+        from feature_extraction.temporal_signals import linear_trend  # noqa
         assert linear_trend([0.7]) == pytest.approx(0.0)
 
 
 class TestPeakCount:
 
     def test_no_peaks_in_constant_signal(self):
-        from vid_feature_extraction.temporal_signals import peak_count  # noqa
+        from feature_extraction.temporal_signals import peak_count  # noqa
         assert peak_count([0.3] * 20) == 0
 
     def test_isolated_spike_detected(self):
-        from vid_feature_extraction.temporal_signals import peak_count  # noqa
+        from feature_extraction.temporal_signals import peak_count  # noqa
         values = [0.2] * 10 + [0.85] + [0.2] * 10
         assert peak_count(values, high_threshold=0.70, low_threshold=0.50) == 1
 
     def test_two_spikes(self):
-        from vid_feature_extraction.temporal_signals import peak_count  # noqa
+        from feature_extraction.temporal_signals import peak_count  # noqa
         values = [0.2] * 5 + [0.85] + [0.2] * 5 + [0.90] + [0.2] * 5
         assert peak_count(values) == 2
 
     def test_plateau_not_counted_as_peak(self):
-        from vid_feature_extraction.temporal_signals import peak_count  # noqa
+        from feature_extraction.temporal_signals import peak_count  # noqa
         # A block of high values should not produce a peak
         values = [0.2] * 5 + [0.85] * 5 + [0.2] * 5
         # Middle of plateau: no low neighbour within min_gap=2
@@ -217,7 +217,7 @@ class TestPeakCount:
 class TestCosineDriftTimeline:
 
     def test_identical_embeddings_zero_drift(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         e = np.ones(512, dtype=np.float32)
         drifts = cosine_drift_timeline([e, e, e])
         assert len(drifts) == 2
@@ -225,7 +225,7 @@ class TestCosineDriftTimeline:
             assert d == pytest.approx(0.0, abs=1e-6)
 
     def test_orthogonal_embeddings_drift_one(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         e1 = np.zeros(4, dtype=np.float32)
         e2 = np.zeros(4, dtype=np.float32)
         e1[0] = 1.0
@@ -235,19 +235,19 @@ class TestCosineDriftTimeline:
         assert drifts[0] == pytest.approx(1.0, abs=1e-6)
 
     def test_opposite_embeddings_drift_two(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         e1 = np.array([1.0, 0.0], dtype=np.float32)
         e2 = np.array([-1.0, 0.0], dtype=np.float32)
         drifts = cosine_drift_timeline([e1, e2])
         assert drifts[0] == pytest.approx(2.0, abs=1e-6)
 
     def test_single_embedding_returns_empty(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         e = np.ones(512, dtype=np.float32)
         assert cosine_drift_timeline([e]) == []
 
     def test_zero_embedding_handled(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         e1 = np.zeros(512, dtype=np.float32)
         e2 = np.ones(512, dtype=np.float32)
         drifts = cosine_drift_timeline([e1, e2])
@@ -255,13 +255,13 @@ class TestCosineDriftTimeline:
         assert drifts[0] == pytest.approx(0.0, abs=1e-6)
 
     def test_output_length_n_minus_one(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         embs = [np.random.rand(256).astype(np.float32) for _ in range(10)]
         drifts = cosine_drift_timeline(embs)
         assert len(drifts) == 9
 
     def test_drift_values_in_valid_range(self):
-        from vid_feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
+        from feature_extraction.temporal_signals import cosine_drift_timeline  # noqa
         embs = [np.random.rand(256).astype(np.float32) for _ in range(8)]
         drifts = cosine_drift_timeline(embs)
         for d in drifts:
@@ -271,7 +271,7 @@ class TestCosineDriftTimeline:
 class TestHeatmapFluxTimeline:
 
     def test_identical_heatmaps_zero_flux(self):
-        from vid_feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
+        from feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
         h = np.zeros((224, 224), dtype=np.float32)
         flux = heatmap_flux_timeline([h, h, h])
         assert len(flux) == 2
@@ -279,12 +279,12 @@ class TestHeatmapFluxTimeline:
             assert f == pytest.approx(0.0, abs=1e-8)
 
     def test_single_heatmap_returns_empty(self):
-        from vid_feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
+        from feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
         h = np.zeros((224, 224), dtype=np.float32)
         assert heatmap_flux_timeline([h]) == []
 
     def test_high_flux_on_opposite_heatmaps(self):
-        from vid_feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
+        from feature_extraction.temporal_signals import heatmap_flux_timeline  # noqa
         h1 = np.ones((224, 224), dtype=np.float32)
         h2 = np.zeros((224, 224), dtype=np.float32)
         flux = heatmap_flux_timeline([h1, h2])
@@ -294,24 +294,24 @@ class TestHeatmapFluxTimeline:
 class TestDetectBlinkRate:
 
     def test_no_blinks_in_constant_open_eye(self):
-        from vid_feature_extraction.temporal_signals import detect_blink_rate  # noqa
+        from feature_extraction.temporal_signals import detect_blink_rate  # noqa
         ear = [0.35] * 80  # consistently open
         rate = detect_blink_rate(ear, ear, fps=8.0, ear_threshold=0.20)
         assert rate == pytest.approx(0.0)
 
     def test_single_blink_correct_rate(self):
-        from vid_feature_extraction.temporal_signals import detect_blink_rate  # noqa
+        from feature_extraction.temporal_signals import detect_blink_rate  # noqa
         # 8 fps, 2-second clip, 1 blink → 0.5 blinks/s
         ear = [0.35] * 8 + [0.10, 0.08] + [0.35] * 6   # 16 frames
         rate = detect_blink_rate(ear, ear, fps=8.0, ear_threshold=0.20)
         assert 0.4 < rate < 0.7
 
     def test_short_signal_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import detect_blink_rate  # noqa
+        from feature_extraction.temporal_signals import detect_blink_rate  # noqa
         assert detect_blink_rate([0.1], [0.1], fps=8.0) == pytest.approx(0.0)
 
     def test_zero_fps_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import detect_blink_rate  # noqa
+        from feature_extraction.temporal_signals import detect_blink_rate  # noqa
         ear = [0.15] * 20
         assert detect_blink_rate(ear, ear, fps=0.0) == pytest.approx(0.0)
 
@@ -319,35 +319,35 @@ class TestDetectBlinkRate:
 class TestPearsonCorrelation:
 
     def test_perfect_positive_correlation(self):
-        from vid_feature_extraction.temporal_signals import pearson_correlation  # noqa
+        from feature_extraction.temporal_signals import pearson_correlation  # noqa
         x = [float(i) for i in range(10)]
         y = [float(i) * 2 + 1 for i in range(10)]
         r = pearson_correlation(x, y)
         assert r == pytest.approx(1.0, abs=1e-9)
 
     def test_perfect_negative_correlation(self):
-        from vid_feature_extraction.temporal_signals import pearson_correlation  # noqa
+        from feature_extraction.temporal_signals import pearson_correlation  # noqa
         x = [float(i) for i in range(10)]
         y = [-float(i) for i in range(10)]
         r = pearson_correlation(x, y)
         assert r == pytest.approx(-1.0, abs=1e-9)
 
     def test_constant_signal_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import pearson_correlation  # noqa
+        from feature_extraction.temporal_signals import pearson_correlation  # noqa
         x = [1.0] * 10
         y = [float(i) for i in range(10)]
         r = pearson_correlation(x, y)
         assert r == pytest.approx(0.0)
 
     def test_short_signal_returns_zero(self):
-        from vid_feature_extraction.temporal_signals import pearson_correlation  # noqa
+        from feature_extraction.temporal_signals import pearson_correlation  # noqa
         assert pearson_correlation([0.5], [0.3]) == pytest.approx(0.0)
 
 
 class TestSceneFakeProbMap:
 
     def test_two_scenes_distinct_probs(self):
-        from vid_feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
+        from feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
         frame_ids  = list(range(10))
         fake_probs = [0.2] * 5 + [0.8] * 5
         scene_ids  = [0] * 5 + [1] * 5
@@ -357,7 +357,7 @@ class TestSceneFakeProbMap:
         assert consistency > 0.2  # High std → inconsistent across scenes
 
     def test_single_scene_consistency_zero(self):
-        from vid_feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
+        from feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
         frame_ids  = list(range(10))
         fake_probs = [0.5] * 10
         scene_ids  = [0] * 10
@@ -365,7 +365,7 @@ class TestSceneFakeProbMap:
         assert consistency == pytest.approx(0.0)
 
     def test_empty_returns_empty(self):
-        from vid_feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
+        from feature_extraction.temporal_signals import compute_scene_fake_prob_map  # noqa
         scene_map, consistency = compute_scene_fake_prob_map([], [], [])
         assert scene_map == {}
         assert consistency == 0.0
@@ -374,7 +374,7 @@ class TestSceneFakeProbMap:
 class TestDeriveVerdict:
 
     def test_all_zero_signals_verdict_real(self):
-        from vid_feature_extraction.temporal_signals import derive_verdict  # noqa
+        from feature_extraction.temporal_signals import derive_verdict  # noqa
         verdict, conf, signals = derive_verdict(
             fake_prob_mean=0.1, fake_prob_variance=0.001,
             fake_prob_rolling_std=0.01, fake_prob_trend_slope=0.0,
@@ -386,7 +386,7 @@ class TestDeriveVerdict:
         assert conf < 0.25
 
     def test_all_high_signals_verdict_fake(self):
-        from vid_feature_extraction.temporal_signals import derive_verdict  # noqa
+        from feature_extraction.temporal_signals import derive_verdict  # noqa
         verdict, conf, signals = derive_verdict(
             fake_prob_mean=0.85,     fake_prob_variance=0.08,
             fake_prob_rolling_std=0.12, fake_prob_trend_slope=0.01,
@@ -401,7 +401,7 @@ class TestDeriveVerdict:
         assert len(signals) > 0
 
     def test_signals_fired_list_non_empty_for_fake(self):
-        from vid_feature_extraction.temporal_signals import derive_verdict  # noqa
+        from feature_extraction.temporal_signals import derive_verdict  # noqa
         _, _, signals = derive_verdict(
             fake_prob_mean=0.9, fake_prob_variance=0.1,
             fake_prob_rolling_std=0.15, fake_prob_trend_slope=0.01,
@@ -412,7 +412,7 @@ class TestDeriveVerdict:
         assert "fake_prob_mean" in signals
 
     def test_landmark_excluded_when_unavailable(self):
-        from vid_feature_extraction.temporal_signals import derive_verdict  # noqa
+        from feature_extraction.temporal_signals import derive_verdict  # noqa
         v1, c1, _ = derive_verdict(
             fake_prob_mean=0.4, fake_prob_variance=0.01,
             fake_prob_rolling_std=0.03, fake_prob_trend_slope=0.001,
@@ -443,7 +443,7 @@ class TestTrackTemporalMetrics:
 
     def _make_metrics(self, verdict="REAL", confidence=0.2):
         try:
-            from vid_feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
+            from feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
         except ImportError:
             pytest.skip("result_types_l2b not importable")
         return TrackTemporalMetrics(
@@ -471,7 +471,7 @@ class TestTrackTemporalMetrics:
 
     def test_coverage_zero_frames(self):
         try:
-            from vid_feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
+            from feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
         except ImportError:
             pytest.skip("result_types_l2b not importable")
         m = TrackTemporalMetrics(track_id="t", n_frames=0, n_valid_frames=0)
@@ -501,7 +501,7 @@ class TestBranchBResult:
 
     def _make_branch_b(self):
         try:
-            from vid_feature_extraction.result_types_l2b import BranchBResult, TrackTemporalMetrics  # noqa
+            from feature_extraction.result_types_l2b import BranchBResult, TrackTemporalMetrics  # noqa
         except ImportError:
             pytest.skip("result_types_l2b not importable")
 
@@ -569,7 +569,7 @@ class TestTemporalConsistencyAnalyzer:
 
     def test_repr(self):
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import (  # noqa
+            from feature_extraction.temporal_consistency_analyzer import (  # noqa
                 TemporalConsistencyAnalyzer,
             )
         except ImportError:
@@ -582,10 +582,10 @@ class TestTemporalConsistencyAnalyzer:
 
     def test_analyze_returns_branch_b_result(self):
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import (  # noqa
+            from feature_extraction.temporal_consistency_analyzer import (  # noqa
                 TemporalConsistencyAnalyzer,
             )
-            from vid_feature_extraction.result_types_l2b import BranchBResult  # noqa
+            from feature_extraction.result_types_l2b import BranchBResult  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -598,7 +598,7 @@ class TestTemporalConsistencyAnalyzer:
 
     def test_analyze_has_all_tracks(self):
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -613,7 +613,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_high_fake_prob_yields_fake_verdict(self):
         """A track with consistently high fake_probability should be FAKE."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -630,7 +630,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_low_fake_prob_yields_real_verdict(self):
         """A track with consistently low fake_probability should be REAL."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -645,7 +645,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_flickering_signal_fires(self):
         """High fake_prob_variance should fire the variance signal."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -662,7 +662,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_scene_consistency_computed(self):
         """Scene-split fake_probs should produce non-zero scene consistency."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -679,7 +679,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_insufficient_frames_returns_uncertain(self):
         """Track with < min_valid_frames valid results → UNCERTAIN."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -695,7 +695,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_overall_verdict_majority_fake(self):
         """With 2 FAKE tracks and 1 REAL, overall verdict should be FAKE."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -716,7 +716,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_embedding_drift_computed(self):
         """Branch B must compute embedding drift timeline."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -730,7 +730,7 @@ class TestTemporalConsistencyAnalyzer:
     def test_landmarks_influence_verdict(self):
         """Landmark availability flag must be set based on Layer 1 data."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -743,8 +743,8 @@ class TestTemporalConsistencyAnalyzer:
     def test_single_track_analyze_track(self):
         """analyze_track() shortcut must return a TrackTemporalMetrics."""
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
-            from vid_feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.result_types_l2b import TrackTemporalMetrics  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 
@@ -759,7 +759,7 @@ class TestTemporalConsistencyAnalyzer:
         """BranchBResult.summary() must be JSON-serialisable."""
         import json  # noqa
         try:
-            from vid_feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
+            from feature_extraction.temporal_consistency_analyzer import TemporalConsistencyAnalyzer  # noqa
         except ImportError:
             pytest.skip("modules not importable")
 

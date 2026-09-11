@@ -17,8 +17,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from vid_explainability.explainability_engine import ExplainabilityEngine
-from vid_explainability.result_types import ExplainabilityResult
+from explainability.explainability_engine import ExplainabilityEngine
+from explainability.result_types import ExplainabilityResult
 
 
 # ===========================================================================
@@ -96,7 +96,7 @@ def output_dir(tmp_path):
 
 
 def test_visualizer_lip_sync_plot(output_dir):
-    from vid_explainability.visualizer import VDSVisualizer
+    from explainability.visualizer import VDSVisualizer
     viz = VDSVisualizer(output_dir)
     
     path = viz.plot_lip_sync_timeline(
@@ -110,7 +110,7 @@ def test_visualizer_lip_sync_plot(output_dir):
 
 
 def test_visualizer_rppg_plot(output_dir):
-    from vid_explainability.visualizer import VDSVisualizer
+    from explainability.visualizer import VDSVisualizer
     viz = VDSVisualizer(output_dir)
     
     path = viz.plot_rppg_signals([0.1, 0.8, 0.2, 0.9], 65.0)
@@ -120,7 +120,7 @@ def test_visualizer_rppg_plot(output_dir):
 
 
 def test_visualizer_temporal_plot(output_dir):
-    from vid_explainability.visualizer import VDSVisualizer
+    from explainability.visualizer import VDSVisualizer
     viz = VDSVisualizer(output_dir)
     
     path = viz.plot_temporal_inconsistencies([0.1, 0.2, 0.8, 0.3], 2.0)
@@ -130,7 +130,7 @@ def test_visualizer_temporal_plot(output_dir):
 
 
 def test_visualizer_heatmaps(output_dir):
-    from vid_explainability.visualizer import VDSVisualizer
+    from explainability.visualizer import VDSVisualizer
     viz = VDSVisualizer(output_dir)
     
     preproc = MockPreprocessingResult()
@@ -152,7 +152,7 @@ def test_visualizer_heatmaps(output_dir):
 
 
 def test_report_generator(output_dir):
-    from vid_explainability.report_generator import ForensicReportGenerator
+    from explainability.report_generator import ForensicReportGenerator
     gen = ForensicReportGenerator(output_dir)
     
     fusion = MockFusionResult()

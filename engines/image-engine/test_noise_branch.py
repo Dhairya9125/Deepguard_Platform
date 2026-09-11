@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-from img_feature_extraction.noise_branch import NoiseResidualBranch, SRMConv2d
+from feature_extraction.noise_branch import NoiseResidualBranch, SRMConv2d
 
 def test():
     print("Testing Layer 2 Branch D: NoiseResidualBranch (SRM)...")

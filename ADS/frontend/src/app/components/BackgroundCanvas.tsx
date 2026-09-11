@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, PointMaterial, Points } from "@react-three/drei";
 import * as THREE from "three";
 
 function StarField() {
   const count = 2000;
-  const [positions] = useState(() => {
+  const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 50;
@@ -15,7 +15,7 @@ function StarField() {
       pos[i * 3 + 2] = (Math.random() - 0.5) * 50;
     }
     return pos;
-  });
+  }, []);
 
   const ref = useRef<THREE.Points>(null!);
 
@@ -44,7 +44,7 @@ function StarField() {
 }
 
 function FloatingOrbs() {
-  const [orbs] = useState(() => {
+  const orbs = useMemo(() => {
     return Array.from({ length: 5 }, (_, i) => ({
       position: [
         (Math.random() - 0.5) * 12,
@@ -54,9 +54,8 @@ function FloatingOrbs() {
       scale: 0.3 + Math.random() * 0.6,
       color: i % 2 === 0 ? "#4D7CFE" : "#66E3FF",
       speed: 0.3 + Math.random() * 0.4,
-      opacity: 0.06 + Math.random() * 0.04,
     }));
-  });
+  }, []);
 
   return (
     <>
@@ -67,7 +66,7 @@ function FloatingOrbs() {
             <meshBasicMaterial
               color={orb.color}
               transparent
-              opacity={orb.opacity}
+              opacity={0.06 + Math.random() * 0.04}
             />
           </mesh>
         </Float>

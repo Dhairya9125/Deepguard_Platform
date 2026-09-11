@@ -4,7 +4,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from img_preprocessing.image_augmenter import ImageAugmenter
+from preprocessing.image_augmenter import ImageAugmenter
 
 def test():
     print("Testing ImageAugmenter (Albumentations)...")

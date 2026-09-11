@@ -6,7 +6,6 @@ Wraps Layers 1-5 into a single, clean inference pipeline.
 """
 
 import os
-import sys
 import torch
 import cv2
 import numpy as np
@@ -14,25 +13,21 @@ import logging
 from pathlib import Path
 from typing import Dict, Any
 
-_CURRENT_DIR = Path(__file__).resolve().parent
-if str(_CURRENT_DIR) not in sys.path:
-    sys.path.insert(0, str(_CURRENT_DIR))
+from preprocessing.face_detector import FaceDetector
+from preprocessing.face_aligner import FaceAligner
+from preprocessing.image_normalizer import ImageNormalizer
+from preprocessing.image_augmenter import ImageAugmenter
+from preprocessing.frequency_analyzer import FrequencyAnalyzer
 
-from img_preprocessing.face_detector import FaceDetector
-from img_preprocessing.face_aligner import FaceAligner
-from img_preprocessing.image_normalizer import ImageNormalizer
-from img_preprocessing.image_augmenter import ImageAugmenter
-from img_preprocessing.frequency_analyzer import FrequencyAnalyzer
+from feature_extraction.spatial_branch import ClipSpatialBranch
+from feature_extraction.frequency_branch import EfficientNetFrequencyBranch
+from feature_extraction.discrepancy_branch import DiscrepancyBranch
+from feature_extraction.noise_branch import NoiseResidualBranch
+from feature_extraction.fingerprint_branch import FingerprintBranch
 
-from img_feature_extraction.spatial_branch import ClipSpatialBranch
-from img_feature_extraction.frequency_branch import EfficientNetFrequencyBranch
-from img_feature_extraction.discrepancy_branch import DiscrepancyBranch
-from img_feature_extraction.noise_branch import NoiseResidualBranch
-from img_feature_extraction.fingerprint_branch import FingerprintBranch
-
-from img_fusion.ids_fusion_engine import IDSFusionEngine
-from img_localization.localization_engine import LocalizationEngine
-from img_explainability.explainability_engine import ExplainabilityEngine
+from fusion.ids_fusion_engine import IDSFusionEngine
+from localization.localization_engine import LocalizationEngine
+from explainability.explainability_engine import ExplainabilityEngine
 
 logger = logging.getLogger(__name__)
 
@@ -48,17 +43,12 @@ class IDSPipeline:
         self.freq_analyzer = FrequencyAnalyzer()
         
         # --- Layer 2: Feature Extraction ---
-        try:
-            self.branch_spatial = ClipSpatialBranch(proj_dim=512).to(self.device).eval()
-            self.branch_freq = EfficientNetFrequencyBranch(proj_dim=512).to(self.device).eval()
-            self.branch_disc = DiscrepancyBranch(proj_dim=512).to(self.device).eval()
-            self.branch_noise = NoiseResidualBranch(proj_dim=512).to(self.device).eval()
-            self.branch_fingerprint = FingerprintBranch(proj_dim=512).to(self.device).eval()
-            self.models_loaded = True
-        except Exception as e:
-            logger.warning(f"Could not load full engine weights. Running in DEMO/MOCK mode: {e}")
-            self.models_loaded = False
-            
+        self.branch_spatial = ClipSpatialBranch(proj_dim=512).to(self.device).eval()
+        self.branch_freq = EfficientNetFrequencyBranch(proj_dim=512).to(self.device).eval()
+        self.branch_disc = DiscrepancyBranch(proj_dim=512).to(self.device).eval()
+        self.branch_noise = NoiseResidualBranch(proj_dim=512).to(self.device).eval()
+        self.branch_fingerprint = FingerprintBranch(proj_dim=512).to(self.device).eval()
+        
         # --- Layer 3: Fusion Engine ---
         self.fusion = IDSFusionEngine(embed_dim=512, num_branches=5).to(self.device).eval()
         
@@ -91,22 +81,13 @@ class IDSPipeline:
         freq_stack = self.freq_analyzer.process(aligned_face).unsqueeze(0).to(self.device)
         
         # 2. FEATURE EXTRACTION
-        if self.models_loaded:
-            # Generate 512-d embeddings
-            spatial_emb = self.branch_spatial(spatial_tensor)
-            freq_emb = self.branch_freq(freq_stack)
-            disc_emb = self.branch_disc(spatial_tensor)
-            noise_emb = self.branch_noise(spatial_tensor)
-            finger_emb = self.branch_fingerprint(spatial_tensor)
-        else:
-            # Mock embeddings if models failed to load
-            batch_size = spatial_tensor.size(0)
-            spatial_emb = torch.randn(batch_size, 512, device=self.device)
-            freq_emb = torch.randn(batch_size, 512, device=self.device)
-            disc_emb = torch.randn(batch_size, 512, device=self.device)
-            noise_emb = torch.randn(batch_size, 512, device=self.device)
-            finger_emb = torch.randn(batch_size, 512, device=self.device)
-            
+        # Generate 512-d embeddings
+        spatial_emb = self.branch_spatial(spatial_tensor)
+        freq_emb = self.branch_freq(freq_stack)
+        disc_emb = self.branch_disc(spatial_tensor)
+        noise_emb = self.branch_noise(spatial_tensor)
+        finger_emb = self.branch_fingerprint(spatial_tensor)
+        
         embeddings = {
             "spatial": spatial_emb,
             "frequency": freq_emb,

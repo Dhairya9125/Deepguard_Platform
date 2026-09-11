@@ -14,7 +14,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from models.fusion_transformer import MultimodalFusionTransformer
-from fusion_core.multimodal_fusion_engine import CrossModalFusionEngine
+from core.multimodal_fusion_engine import CrossModalFusionEngine
 from result_types import FusionResult
 
 

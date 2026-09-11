@@ -1,5 +1,5 @@
 import torch
-from img_fusion.ids_fusion_engine import IDSFusionEngine
+from fusion.ids_fusion_engine import IDSFusionEngine
 
 def test():
     print("Testing Layer 3: IDSFusionEngine...")

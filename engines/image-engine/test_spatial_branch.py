@@ -1,6 +1,6 @@
 import torch
 
-from img_feature_extraction.spatial_branch import ClipSpatialBranch
+from feature_extraction.spatial_branch import ClipSpatialBranch
 
 def test():
     print("Testing Layer 2 Branch A: ClipSpatialBranch...")

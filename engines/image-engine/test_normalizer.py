@@ -1,5 +1,5 @@
 import numpy as np
-from img_preprocessing import ImageNormalizer
+from preprocessing import ImageNormalizer
 
 def test():
     print("Testing ImageNormalizer...")

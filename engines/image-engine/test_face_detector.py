@@ -40,7 +40,7 @@ logging.basicConfig(
 )
 
 # ─── Import our module ─────────────────────────────────────────────────────────
-from img_preprocessing.face_detector import FaceDetector, FaceDetectionResult
+from preprocessing.face_detector import FaceDetector, FaceDetectionResult
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
 # Sample face image from InsightFace's own test data (same library we use)

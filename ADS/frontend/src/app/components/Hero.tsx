@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import MagneticButton from "./MagneticButton";
@@ -29,13 +29,13 @@ export default function Hero() {
       />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pt-32 pb-24">
-        <div className="max-w-2xl flex flex-col gap-6">
+        <div className="max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <span className="inline-block text-xs tracking-[0.3em] uppercase text-white/40 mb-2 font-mono">
+            <span className="inline-block text-xs tracking-[0.3em] uppercase text-white/40 mb-6 font-mono">
               TRUX
             </span>
           </motion.div>
@@ -44,7 +44,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-[clamp(40px,7.5vw,96px)] font-extrabold leading-[1.0] md:leading-[0.92] tracking-tight break-words mb-4"
+            className="text-[clamp(48px,8vw,110px)] font-extrabold leading-[0.92] tracking-[-0.04em]"
           >
             <span>
               <span className="text-gradient-blue">T</span>ruth{" "}
@@ -58,7 +58,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-base md:text-lg leading-relaxed text-white/60 max-w-lg"
+            className="mt-8 text-base md:text-lg leading-relaxed text-white/60 max-w-lg"
           >
             Enterprise-grade deepfake detection across image, audio, and video. Our AI forensics platform helps organizations verify authenticity and combat disinformation.
           </motion.p>

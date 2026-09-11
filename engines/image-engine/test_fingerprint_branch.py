@@ -1,6 +1,6 @@
 import torch
 
-from img_feature_extraction.fingerprint_branch import FingerprintBranch
+from feature_extraction.fingerprint_branch import FingerprintBranch
 
 def test():
     print("Testing Layer 2 Branch E: FingerprintBranch (Swin Transformer)...")

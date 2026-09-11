@@ -10,14 +10,14 @@ import numpy as np
 import pytest
 import torch
 
-from vid_feature_extraction.result_types_l2g import BranchGResult, SceneSemanticMetrics
-from vid_feature_extraction.semantic_signals import (
+from feature_extraction.result_types_l2g import BranchGResult, SceneSemanticMetrics
+from feature_extraction.semantic_signals import (
     compute_background_inconsistency,
     compute_environment_instability,
     compute_lighting_discrepancy,
 )
-from vid_feature_extraction.world_model_net import WorldModelActiveClassifier
-from vid_feature_extraction.temporal_semantic_analyzer import TemporalSemanticAnalyzer
+from feature_extraction.world_model_net import WorldModelActiveClassifier
+from feature_extraction.temporal_semantic_analyzer import TemporalSemanticAnalyzer
 
 
 # ===========================================================================
@@ -33,7 +33,7 @@ def _make_layer1_result(
 ):
     """Build a synthetic VideoPreprocessingResult stub for Branch G."""
     try:
-        from vid_preprocessing.result_types import (
+        from preprocessing.result_types import (
             FramePacket,
             SceneBoundary,
             TrackedFace,
@@ -196,7 +196,7 @@ class TestTemporalSemanticAnalyzerIntegration:
 
     def test_analyze_empty_layer1_result(self):
         try:
-            from vid_preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
+            from preprocessing.result_types import VideoMetadata, VideoPreprocessingResult
         except ImportError:
             pytest.skip("preprocessing.result_types not importable")
 
